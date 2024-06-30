@@ -1,0 +1,1154 @@
+---
+title: "FORTUNE 500"
+author: "HARNAIN KAUR SARDARNI"
+Companies assigned: McKesson, Microsoft, Costco, AmerisourceBergen
+Business Performance Metrics assigned: TotalRevenue, PretaxIncome & BasicEPS
+Course: DSC 425, Term Project
+date: "2023-06-09"
+output:
+  html_document: default
+  word_document: default
+---
+
+``` {r warning = FALSE, message = FALSE}
+
+#Loading libraries
+library(ggplot2)
+library(fBasics)
+library(lubridate)
+library(ggfortify)
+library(fpp2)
+library(zoo)
+library(float)
+library(parsedate)
+library(readr)
+library(stringr)
+library(gsubfn)
+library(plyr)
+library(tseries)
+library(hash)
+library(tidyquant)
+library(plotly)
+library(lmtest)
+library(backtest)
+library(float)
+library(imputeTS) 
+
+
+```
+
+*loading our Companies Data sets*
+``` {r echo=TRUE}
+AmerisourceBergen_Financials <- read_csv("~/Desktop/TIME PROJECT/HARNAIN/amerisourcebergen_financials.csv")
+Costco_Financials <- read_csv("~/Desktop/TIME PROJECT/HARNAIN/costco_financials.csv")
+Microsoft_Financials <- read_csv("~/Desktop/TIME PROJECT/HARNAIN/microsoft_financials.csv")
+McKesson_Financials <- read_csv("~/Desktop/TIME PROJECT/HARNAIN/mckesson_financials.csv")
+
+```
+
+*Business Performance Indicators Tracked*
+``` {r echo=TRUE}
+# McKesson
+McKessonGroup_TotalRevenue = "" 
+McKessonGroup_PretaxIncome = ""
+McKessonGroup_BasicEPS = ""
+# Microsoft
+Microsoft_TotalRevenue = ""
+Microsoft_PretaxIncome = ""
+Microsoft_BasicEPS = ""
+# Costco
+Costco_TotalRevenue = ""
+Costco_PretaxIncome = ""
+Costco_BasicEPS = ""
+# AmerisourceBergen
+AmerisourceBergen_TotalRevenue = ""
+AmerisourceBergen_PretaxIncome = ""
+AmerisourceBergen_BasicEPS = ""
+
+```
+
+*let's display all the operating parameters associated with each Company is being evaluated on*
+``` {r echo=TRUE}
+operating_performance_params = McKesson_Financials[,1:1]
+operating_performance_params = c(str_c(operating_performance_params))
+print("Operating Performance Parameters, selections of which we Evalate Per Company:")
+for (i in 1:length(operating_performance_params)){
+  # verify associated operating parameters for Business Operations and Performance Evaluations
+  print(operating_performance_params[i]) 
+}
+
+```
+
+*now, let's get financial records*
+``` {r echo=TRUE}
+companies = c("McKesson", "Microsoft Corp.", "Costco", "AmerisourceBergen Inc.")
+for (company in companies){
+  if (company == "McKesson"){
+    print(paste("Company = ", company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    PretaxIncome = list()
+    BasicEPS = list()
+    # now, populate our lists()
+    TotalRevenue = append(TotalRevenue, str_c(McKesson_Financials[1,3:30])) # get the TotalRevenue
+    PretaxIncome =  append(PretaxIncome, str_c(McKesson_Financials[28,3:30]))
+    BasicEPS =  append(BasicEPS, str_c(McKesson_Financials[39,3:30]))
+    # let's declare a vector, which we will turn into a dictionary
+    McKesson = hash(keys = c("TotalRevenue", "PretaxIncome", "BasicEPS"),
+                    values = c(list(TotalRevenue), list(PretaxIncome), list(BasicEPS)))
+    # now, we associate our Total Revenue vars
+    McKessonGroup_TotalRevenue = McKesson$TotalRevenue
+    McKessonGroup_PretaxIncome = McKesson$PretaxIncome
+    McKessonGroup_BasicEPS = McKesson$BasicEPS
+    
+    print("McKesson - Total Revenue")
+    print(McKessonGroup_TotalRevenue)
+    print("------------------------------")
+  }
+  
+  # Microsoft Corp. 
+  else if (company == "Microsoft Corp."){
+    print(paste("Company = ", company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    PretaxIncome = list()
+    BasicEPS = list()
+    # let' pull our Data set for our indicators
+    TotalRevenue = append(TotalRevenue, str_c(Microsoft_Financials[1,3:39])) # get the TotalRevenue
+    PretaxIncome =  append(PretaxIncome, str_c(Microsoft_Financials[27,3:39]))
+    BasicEPS =  append(BasicEPS, str_c(Microsoft_Financials[36,3:39]))
+    # let's declare a vector, which we will turn into a dictionary
+    Microsoft = hash(keys = c("TotalRevenue", "PretaxIncome", "BasicEPS"),
+                     values = c(list(TotalRevenue), list(PretaxIncome), list(BasicEPS)))
+    # now, we verify our Business performance hash(),   
+    Microsoft_Business_Performance = c(Microsoft$TotalRevenue,Microsoft$PretaxIncome,
+                                       Microsoft$BasicEPS)
+    # now, we associate our Total Revenue vars
+    Microsoft_TotalRevenue = Microsoft$TotalRevenue
+    Microsoft_PretaxIncome = Microsoft$PretaxIncome
+    Microsoft_BasicEPS = Microsoft$BasicEPS
+    
+    print("Microsoft - Total Revenue")
+    print(Microsoft_TotalRevenue)
+    print("------------------------------")
+  }
+  
+  # Costco 
+  else if (company == "Costco"){
+    print(paste("Company = ", company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    PretaxIncome = list()
+    BasicEPS = list()
+    # let' pull our Data set for our indicators
+    TotalRevenue = append(TotalRevenue, str_c(Costco_Financials[1,3:40])) # get the Total Revenue
+    PretaxIncome =  append(PretaxIncome, str_c(Costco_Financials[22,3:40])) # InterestExpense = Costco_Financials[56,3:37]
+    BasicEPS =  append(BasicEPS, str_c(Costco_Financials[34,3:40])) # TotalPremiumsEarned =  Costco_Financials[2,3:37]
+    
+    # let's declare a vector, which we will turn into a dictionary
+    Costco = hash(keys = c("TotalRevenue", "PretaxIncome", "BasicEPS"),
+                  values = c(list(TotalRevenue), list(PretaxIncome), list(BasicEPS)))
+    # now, we verify our Business performance hash(),   
+    Costco_Business_Performance = c(Costco$TotalRevenue,Costco$PretaxIncome,
+                                    Costco$BasicEPS)
+    # now, we associate our Total Revenue vars
+    Costco_TotalRevenue = Costco$TotalRevenue
+    Costco_PretaxIncome = Costco$PretaxIncome
+    Costco_BasicEPS = Costco$BasicEPS
+    
+    
+    
+    print("Costco - Total Revenue")
+    print(Costco$BasicEPS)
+    print("------------------------------")
+  }
+  
+  # AmerisourceBergen Inc.
+  else if (company == "AmerisourceBergen Inc."){
+    print(paste("Company = ", company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    PretaxIncome = list()
+    BasicEPS = list()
+    # let' pull our Data set for our indicators 
+    TotalRevenue = append(TotalRevenue, str_c(AmerisourceBergen_Financials[1,3:31])) # get the Total Revenue
+    PretaxIncome =  append(PretaxIncome, str_c(AmerisourceBergen_Financials[28,3:31]))
+    BasicEPS =  append(BasicEPS, str_c(AmerisourceBergen_Financials[39,3:31]))
+    # let's declare a vector, which we will turn into a dictionary
+    AmerisourceBergen = hash(keys = c("TotalRevenue", "PretaxIncome", "BasicEPS"),
+                             values = c(list(TotalRevenue), list(PretaxIncome), list(BasicEPS)))
+    # now, we verify our Business performance hash(),   
+    AmerisourceBergen_Business_Performance = c(AmerisourceBergen$TotalRevenue,AmerisourceBergen$PretaxIncome,
+                                               AmerisourceBergen$BasicEPS)
+    # now, we associate our Total Revenue vars
+    AmerisourceBergen_TotalRevenue = AmerisourceBergen$TotalRevenue
+    AmerisourceBergen_PretaxIncome = AmerisourceBergen$PretaxIncome
+    AmerisourceBergen_BasicEPS = AmerisourceBergen$BasicEPS
+    
+    print("AmerisourceBergen - Total Revenue")
+    print(AmerisourceBergen_TotalRevenue)
+    print("------------------------------")
+  }
+}
+
+```
+
+*getting the column names for each company and renaming the columns names to dates*
+``` {r echo=TRUE}
+
+# United Health
+colnames_McKesson = colnames(McKesson_Financials)
+colnames_McKesson # preview McKesson columns
+McKesson_total_columns = length(colnames_McKesson) # get the number of columns
+McKesson_total_columns
+# re-compute the columns, leaving out the 1st two
+colnames_McKesson = colnames_McKesson[3:McKesson_total_columns]
+McKesson_total_columns = McKesson_total_columns - 2
+McKesson_total_columns
+
+# Microsoft
+colnames_Microsoft = colnames(Microsoft_Financials)
+colnames_Microsoft # preview Microsoft Mobil columns
+Microsoft_total_columns = length(colnames_Microsoft) # get the number of columns
+Microsoft_total_columns
+# re-compute the columns, leaving out the 1st two
+colnames_Microsoft = colnames_Microsoft[3:Microsoft_total_columns]
+Microsoft_total_columns = Microsoft_total_columns - 2
+Microsoft_total_columns
+
+# Costco
+colnames_Costco = colnames(Costco_Financials)
+colnames_Costco # preview Costco columns
+Costco_total_columns = length(colnames_Costco) # get the number of columns
+Costco_total_columns
+# re-compute the columns, leaving out the 1st two
+colnames_Costco = colnames_Costco[3:Costco_total_columns]
+Costco_total_columns = Costco_total_columns - 2
+Costco_total_columns
+
+# AmerisourceBergen
+colnames_AmerisourceBergen  = colnames(AmerisourceBergen_Financials)
+colnames_AmerisourceBergen # preview AmerisourceBergen columns
+AmerisourceBergen_total_columns = length(colnames_AmerisourceBergen) # get the number of columns
+AmerisourceBergen_total_columns
+# re-compute the columns, leaving out the 1st two
+colnames_AmerisourceBergen = colnames_AmerisourceBergen[3:AmerisourceBergen_total_columns]
+AmerisourceBergen_total_columns = AmerisourceBergen_total_columns - 2
+AmerisourceBergen_total_columns
+
+# rename the column names to actual dates
+renamed_columns = function(company, TotalRevenue, colnames, total_columns){
+  column_count = length(colnames) # account for all column-years
+  print(paste("# of Years of Records: ", column_count))
+  if(company == "McKesson"){
+    last_year_records = mdy("3.31.2022") # initialize last financial records year as '3.31.2022'
+  }
+  else if(company == "Microsoft Corp."){
+    last_year_records = mdy("6.30.2022") # initialize last financial records year as '6.30.2022'
+  }
+  else if(company == "Costco"){
+    last_year_records = mdy("8.31.2022") # initialize last financial records year as '8.31.2022'
+  }
+  else if(company == "AmerisourceBergen Inc."){
+    last_year_records = mdy("9.30.2022") # initialize last financial records year as '9.30.2022'
+  }
+  print(paste("Last Record Years:",last_year_records))
+  first_year = last_year_records - dyears(total_columns - 1) # get our 1st record year 
+  first_year = first_year + ddays(1) # account for the offset day 
+  print(paste("1st Year Financials Recorded:", first_year))
+  
+  # now, let's update the column names, removing the 'X' variable
+  mdy_column_records = list() # initialize and empty list
+  for (col in 1:total_columns){
+    colname = c(colnames[col]) # vectorize the single column-name
+    new_col = str_replace(colname, "[X]", "") # remove the "X"
+    new_col = str_replace_all(new_col, "[.]", "/") # now, let's replace all the '.' in our Dates
+    new_col = str_c(new_col) # convert to a string
+    parsed_date = parse_date(new_col, "%m/%d/%Y") # parse our respective dates
+    # now, convert to a character
+    parsed_date = str_c(parsed_date) # vectorize date
+    mdy_column_records = append(mdy_column_records, parsed_date) # save the updated column name as '12/31/Y', as a date string
+  }
+  rev_parsed_dates = rev(mdy_column_records) # reverse the record columns from the earliest to the newest
+  # dates from the 'oldest date -> newest date', so top -> bottom, as in 1985 ...> 2022
+  return(rev_parsed_dates)
+}
+
+```
+
+*calling out Company Stats function*
+``` {r echo=TRUE}
+Company_Stats = function(company, records_df){
+  # let's get the Business Performance Metrics
+  print(paste("Company Performance: ", company))
+  print(records_df) # Company Record Performance
+  # now, let's run the basic statistics of our Business Performance Indicators
+  company_TotalRevenue = as.numeric(records_df$TotalRevenue)
+  company_TotalRevenue = basicStats(company_TotalRevenue)
+  # PretaxIncome stats
+  company_PretaxIncome = as.numeric(records_df$PretaxIncome)
+  company_PretaxIncome = basicStats(company_PretaxIncome)
+  # BasicEPS stats
+  company_BasicEPS = as.numeric(records_df$BasicEPS)
+  company_BasicEPS = basicStats(company_BasicEPS)
+  print(paste("Company Descriptives -", company))
+  print(company_TotalRevenue) # Company Record Performance Statistics
+  print(company_PretaxIncome)
+  print(company_BasicEPS)
+}
+
+```
+
+*combining our transformed Financial Record year and Financials for Time-Series Analysis*
+``` {r echo=TRUE}
+company_records = function(company,Financial_Record_Years, TotalRevenue,
+                           PretaxIncome, BasicEPS){
+  # let's reverse our Yearly Revenues, PretaxIncome, and BasicEPS to match 
+  # our new Financial Record Years
+  TotalRevenue = rev(TotalRevenue)
+  PretaxIncome = rev(PretaxIncome)
+  BasicEPS = rev(BasicEPS)
+  financial_years_len = length(Financial_Record_Years)
+  revenue_len = length(TotalRevenue)
+  # compute the length of record for each company, respectively
+  if (financial_years_len == revenue_len){
+    print(paste("Years of Revenue = ", financial_years_len))
+    print(paste("Revenue Records = ", revenue_len))
+    print("Our corresponding records match in length")
+  }
+  else if (financial_years_len != revenue_len){
+    print(paste("Years of Revenue = ", financial_years_len))
+    print(paste("Revenue Records = ", revenue_len))
+    print("Our corresponding records DO NOT match in lenght")
+  }
+  Financial_Record_Years = as.character(Financial_Record_Years) # character type, later to Data type
+  # now, convert the Revenue's to a numeric
+  TotalRevenue = as.character(TotalRevenue) # character type, later to Numeric type
+  PretaxIncome = as.character(PretaxIncome)
+  BasicEPS = as.character(BasicEPS)
+  # data frame our record 
+  records_df = data.frame(Financial_Record_Years, TotalRevenue, PretaxIncome,
+                          BasicEPS) 
+  names(records_df) = c("Date", "TotalRevenue", "PretaxIncome", "BasicEPS") # assign column names
+  records_df$Date = c(records_df$Date)
+  records_df$Date <- as.Date(records_df$Date, format = "%Y-%m-%d")
+  
+  # now, let's update the column names, removing the 'X' variable
+  revenue_vals = list() # initialize and empty list
+  cost_of_revenue_vals = list()
+  gross_profit_vals = list()
+  for (col in 1:revenue_len){
+    rev_val = c(TotalRevenue[col]) # vectorize the single column-name
+    cost_of_revenue_val = c(PretaxIncome[col])
+    gross_profit_val = c(BasicEPS[col])
+    rev_len = length(rev_val)
+    my_vec_updated <- as.numeric(gsub(",", "", rev_val))                   # Convert example vector
+    my_cost_of_revenue_updated <- as.numeric(gsub(",", "", cost_of_revenue_val))
+    my_gross_profit_updated <- as.numeric(gsub(",", "", gross_profit_val))
+    revenue_vals = append(revenue_vals, my_vec_updated) # save the updated column name as '12/31/Y', as a date string 
+    cost_of_revenue_vals = append(cost_of_revenue_vals, my_cost_of_revenue_updated)
+    gross_profit_vals = append(gross_profit_vals, my_gross_profit_updated)
+  }
+  # now, let's update our records
+  records_df$TotalRevenue = revenue_vals
+  # we notice, Costco has some missing values for PretaxIncome BasicEPS
+  #records_df$TotalRevenue[is.na(records_df$TotalRevenue)]<-mean(records_df$TotalRevenue,na.rm=TRUE)
+  records_df$PretaxIncome = cost_of_revenue_vals
+  
+  records_df$BasicEPS = gross_profit_vals
+  # here, we call out Company Stats function
+  Company_Stats(company, records_df)
+  return(records_df) # return the company record performances
+}
+
+```
+
+
+*let's plot our acf, pacf, and eac()'s*
+``` {r echo=TRUE}
+
+summary_TSAnalysis2 = function(company, totalRev,costofRev,grossProf,TotalRevenue_, CostOfRev_, GrossProf_){
+  # now, check the acf, pacf and eac()
+  acf(TotalRevenue_, lag.max = 10, type = c("correlation"), main = str_c(company, ": - TotalRevenue($)"))
+  pacf(TotalRevenue_, lag.max = 10, main = str_c(company, ": - TotalRevenue($)"))
+  acf(CostOfRev_, lag.max = 10, type = c("correlation"), main = str_c(company, ": - PretaxIncome($)"))
+  pacf(CostOfRev_, lag.max = 10, main = str_c(company, ": - PretaxIncome($)"))
+  acf(GrossProf_, lag.max = 10, type = c("correlation"), main = str_c(company, ": - BasicEPS($)"))
+  pacf(GrossProf_, lag.max = 10, main = str_c(company, ": - BasicEPS($)"))
+  
+  # let's run the eacf
+  # print(" *** EACF() CHECK ***")
+  #print(paste("Company = ", company))
+  #print(eacf(TotalRevenue_))
+  # now, we run auto.arima() 
+  totalRevAuto = auto.arima(totalRev) # let's run an auto.arima() TotalRevenue
+  costofReAuto = auto.arima(totalRev) # let's run an auto.arima() PretaxIncome
+  grosProfAuto = auto.arima(totalRev) # let's run an auto.arima() BasicEPS
+  
+  # check the coefficients for each of the auto.arima() models
+  print("auto.arima() coefficients - TotalRevenue:")
+  print(coefficients(totalRevAuto)) # and let's check its coefficients
+  print("auto.arima() coefficients - PretaxIncome:")
+  print(coefficients(totalRevAuto)) # and let's check its coefficients
+  print("auto.arima() coefficients - BasicEPS:")
+  print(coefficients(totalRevAuto)) # and let's check its coefficients
+  
+  # check significance model parameters for each of our tracked indicators
+  print("auto.arima() coeftest() - TotalRevenue:")
+  print(coeftest(totalRevAuto))
+  print("auto.arima() coeftest() - PretaxIncome:")
+  print(coeftest(totalRevAuto))
+  print("auto.arima() coeftest - BasicEPS:")
+  print(coeftest(totalRevAuto))
+  
+  # check the residuals for our auto.arima()
+  acf(totalRevAuto$residuals, lag.max = 10, type = c("correlation"), main = str_c(company, ": Residuals - TotalRevenue($)"))
+  acf(costofReAuto$residuals, lag.max = 10, type = c("correlation"), main = str_c(company, ": Residuals - PretaxIncome($)"))
+  acf(grosProfAuto$residuals, lag.max = 10, type = c("correlation"), main = str_c(company, ": Residuals- BasicEPS($)"))
+}
+
+```
+
+*calling our final time series analysis method()*
+``` {r echo=TRUE}
+
+summary_TSAnalysis1 = function(company,company_revenues){
+  # let's get the starting and ending years of our Data Records
+  startYear = (company_revenues$Date)[1]
+  years = length(company_revenues$Date)
+  endYear = (company_revenues$Date)[years]
+  
+  # now, verify our years, for each Company
+  print(paste("StartYear and EndYear: ", company))
+  print(paste("StartYear", startYear))
+  print(paste("EndYear", endYear))
+  
+  # now, we run our TotalRevenue, PretaxIncome and BasicEPS 
+  totalRev = as.numeric(company_revenues$TotalRevenue) # convert to numeric
+  costofRev = as.numeric(company_revenues$PretaxIncome)
+  grossProf = as.numeric(company_revenues$BasicEPS)
+  if (company == "McKesson"){
+    # run the TotalRevenue time-series
+    McKesson_TotalRevenue_ = ts(totalRev, start = c(1995,3), frequency = 12)
+    McKesson_CostOfRev_ = ts(costofRev, start = c(1995,3), frequency = 12)
+    McKesson_GrossProf_ = ts(grossProf, start = c(1995,3), frequency = 12)
+    # let's plot our acf, pacf, and eac()'s
+    #summary_TSAnalysis2(company, totalRev,costofRev,grossProf, McKesson_TotalRevenue_, McKesson_CostOfRev_, McKesson_GrossProf_)
+  }
+  else if (company == "Microsoft Corp."){
+    # run the TotalRevenue time-series
+    print(paste("Company: -", company))
+    Microsoft_TotalRevenue_ = ts(totalRev, start = c(1986,6), frequency = 12)
+    Microsoft_CostOfRev_ = ts(costofRev, start = c(1986,6), frequency = 12)
+    Microsoft_GrossProf_ = ts(grossProf, start = c(1986,6), frequency = 12)
+    # let's plot our acf, pacf, and eac()'s
+    #summary_TSAnalysis2(company, totalRev,costofRev,grossProf, Microsoft_TotalRevenue_, Microsoft_CostOfRev_, Microsoft_GrossProf_)
+  }
+  else if (company == "Costco"){
+    print(paste("Company: -", company))
+    # run the TotalRevenue time-series
+    Costco_TotalRevenue_ = ts(totalRev, start = c(1985,8), frequency = 12)
+    Costco_CostOfRev_ = ts(costofRev, start = c(1985,8), frequency = 12)
+    Costco_GrossProf_ = ts(grossProf, start = c(1985,8), frequency = 12)
+    # let's plot our acf, pacf, and eac()'s
+    #summary_TSAnalysis2(company, totalRev,costofRev,grossProf, Costco_TotalRevenue_, Costco_CostOfRev_, Costco_GrossProf_)
+  }
+  else if (company == "AmerisourceBergen Inc."){
+    print(paste("Company: -", company))
+    AmerisourceBergen_TotalRevenue_ = ts(totalRev, start = c(1994,9), frequency = 12)
+    AmerisourceBergen_CostOfRev_ = ts(costofRev, start = c(1994,9), frequency = 12)
+    AmerisourceBergen_GrossProf_ = ts(grossProf, start = c(1994,9), frequency = 12)
+    # let's plot our acf, pacf, and eac()'s
+    #summary_TSAnalysis2(company, totalRev,costofRev,grossProf, AmerisourceBergen_TotalRevenue_, AmerisourceBergen_CostOfRev_, AmerisourceBergen_GrossProf_)
+  }
+}
+
+```
+
+*plot the time series for each tracked indicator*
+``` {r echo=TRUE}
+
+Company_TStrackerPlots = function(company,TotalRevenue_TStracker,PretaxIncome_TStracker,BasicEPS_TStracker){
+  # plot one tracker at a time
+  plot(company_revenues$Date, company_revenues$TotalRevenue, type = "l", col = 12, pch = 19, lwd=2.0, xlab = "Years", ylab = "TotalRevenue ($)", main = str_c(company, " TotalRevenue ($)"))
+  legend("topright", c("TotalRevenue($)"), lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  # plot one tracker at a time
+  plot(company_revenues$Date, company_revenues$PretaxIncome, type = "l", col = 13, pch = 19, lwd=2.0, xlab = "Years", ylab = "PretaxIncome ($)", main = str_c(company, " PretaxIncome ($)"))
+  legend("topright", c("CosOfRevenue($)"), lty = 1, col = 13, pch = 19, lwd=2.0)
+  grid()
+  # plot one tracker at a time
+  plot(company_revenues$Date, company_revenues$BasicEPS, type = "l", col = 14, pch = 19,  lwd=2.0, xlab = "Years", ylab = "BasicEPS ($)", main = str_c(company, " BasicEPS ($)"))
+  legend("topright", c("BasicEPS($)"), lty = 1, col = 14, pch = 19, lwd=2.0)
+  grid()
+}
+
+```
+
+*here, we run our time-series plots*
+``` {r echo=TRUE}
+
+time_plot = function(company, company_revenues){
+  # line plots of our series
+  plot(company_revenues$Date, company_revenues$TotalRevenue, type = "l", col = 12, pch = 19, lwd=2.0, xlab = "Years", ylab = "TotalRevenue($)", main = str_c("TotalRevenue($)", company))
+  legend("topright", c("TotalRevenue"), lty = 1, col = 12:14, pch = 19, lwd=2.0)
+  grid()
+  
+  plot(company_revenues$Date, company_revenues$PretaxIncome, type = "l", col = 13, pch = 19, lwd=2.0, xlab = "Years", ylab = "PretaxIncome($)", main = str_c("PretaxIncome($)", company))
+  legend("topright", c("PretaxIncome"), lty = 1, col = 12:14, pch = 19, lwd=2.0)
+  grid()
+  
+  plot(company_revenues$Date, company_revenues$BasicEPS, type = "l", col = 14, pch = 19, lwd=2.0, xlab = "Years", ylab = "BasicEPS(%)", main = str_c("BasicEPS(%)", company))
+  legend("topright", c("BasicEPS"), lty = 1, col = 12:14, pch = 19, lwd=2.0)
+  grid()
+  
+  # let's run the single tracker time series, and Time Series Models Analysis
+  if(company == "McKesson"){
+    # McKesson Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    #summary_TSAnalysis1(company,company_revenues)
+  }
+  else if (company == "Microsoft Corp."){
+    # Microsoft Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    #summary_TSAnalysis1(company,company_revenues)
+  }
+  else if (company == "Costco"){
+    # Costco Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    #summary_TSAnalysis1(company,company_revenues)
+  }
+  else if (company == "AmerisourceBergen Inc."){
+    # AmerisourceBergen Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    #summary_TSAnalysis1(company,company_revenues)
+  } 
+  print("===========================================================================")
+}
+
+```
+
+*Correlation and Plots on Business Performance*
+``` {r echo=TRUE}
+
+Company_Corrs_Plots = function(company,company_revenues, numeric_TotalRevenue,numeric_PretaxIncome,numeric_BasicEPS){
+  
+  # let's run correlations for McKesson, Microsoft, Costco and AmerisourceBergen
+  TotalRevenue_Corrtracker_PretaxIncome = cor(numeric_TotalRevenue, numeric_PretaxIncome)
+  print(paste("TotalRevenue <---> PretaxIncome Correlation = ", TotalRevenue_Corrtracker_PretaxIncome))
+  TotalRevenue_Corrtracker_BasicEPS = cor(numeric_TotalRevenue, numeric_BasicEPS)
+  print(paste("TotalRevenue<--->BasicEPS Correlation = ", TotalRevenue_Corrtracker_BasicEPS))
+  # now, PretaxIncome:BasicEPS Correlations
+  PretaxIncome_BasicEPS_Corrtracker = cor(numeric_PretaxIncome, numeric_BasicEPS)
+  print(paste("PretaxIncome<--->BasicEPS Correlation = ", PretaxIncome_BasicEPS_Corrtracker))
+  
+  # title = str_c(round(TotalRevenue_Corrtracker_PretaxIncome,4), " (TotalRevenue($) vs. PretaxIncome($))")
+  if((company == "McKesson") | (company == "Microsoft Corp.") | (company == "AmerisourceBergen Inc.")){
+    # plot the TotalRevenue <---> PretaxIncome Correlation plot
+    plot(numeric_PretaxIncome, numeric_TotalRevenue, col = "green", pch = 19, bty = "n", xlab = "PretaxIncome ($)",
+         ylab = "TotalRevenue($) vs. PretaxIncome($)", main = str_c(company, ":- TotalRevenu($) vs. PretaxIncome($)"))
+    mtext(str_c("correlation = ", TotalRevenue_Corrtracker_PretaxIncome), side=3)
+    grid()
+    # plot the TotalRevenue <---> BasicEPS Correlation plot
+    plot(numeric_BasicEPS, numeric_TotalRevenue, col = "blue", pch = 19, bty = "n", xlab = "BasicEPS ($)",
+         ylab = "TotalRevenue($) vs. BasicEPS($)", main = str_c(company, ":- TotalRevenu($) vs. BasicEPS($)"))
+    mtext(str_c("correlation = ", TotalRevenue_Corrtracker_BasicEPS), side=3)
+    grid()
+    # plot the TotalRevenue <---> BasicEPS Correlation plot
+    plot(numeric_PretaxIncome, numeric_BasicEPS, col = "violet", pch = 19, bty = "n", xlab = "PretaxIncome ($)",
+         ylab = "PretaxIncome($) vs. BasicEPS($)", main = str_c(company, ":- PretaxIncome($) vs. BasicEPS($)"))
+    mtext(str_c("correlation = ", PretaxIncome_BasicEPS_Corrtracker), side=3)
+    grid()
+  }
+  #  ****************** For now: Costco addressed separately because of its NA' values!
+  else if (company == "Costco "){
+    # plot the TotalRevenue <---> PretaxIncome Correlation plot
+    plot(numeric_PretaxIncome, numeric_TotalRevenue, col = "green", pch = 19, bty = "n", xlab = "PretaxIncome ($)",
+         ylab = "TotalRevenue($) vs. PretaxIncome($)", main = str_c(company, ":- TotalRevenu($) vs. PretaxIncome($)"))
+    mtext(str_c("correlation = ", TotalRevenue_Corrtracker_PretaxIncome), side=3)
+    grid()
+    # plot the TotalRevenue <---> BasicEPS Correlation plot
+    plot(numeric_BasicEPS, numeric_TotalRevenue, col = "blue", pch = 19, bty = "n", xlab = "BasicEPS ($)",
+         ylab = "TotalRevenue($) vs. BasicEPS($)", main = str_c(company, ":- TotalRevenu($) vs. BasicEPS($)"))
+    mtext(str_c("correlation = ", TotalRevenue_Corrtracker_BasicEPS), side=3)
+    grid()
+    # plot the TotalRevenue <---> BasicEPS Correlation plot
+    plot(numeric_PretaxIncome, numeric_BasicEPS, col = "violet", pch = 19, bty = "n", xlab = "PretaxIncome ($)",
+         ylab = "PretaxIncome($) vs. BasicEPS($)", main = str_c(company, ":- PretaxIncome($) vs. BasicEPS($)"))
+    mtext(str_c("correlation = ", PretaxIncome_BasicEPS_Corrtracker), side=3)
+    grid()
+  }
+}
+
+```
+
+*here, we check for the correlation between our Tracked indicators*
+``` {r echo=TRUE}
+
+Correlation_Business_Performance = function(company, company_revenues){
+  
+  # here, we impute any missing values, replacing with a '0' for each column, respectively
+  company_revenues$TotalRevenue[is.na(company_revenues$TotalRevenue)]<-mean(as.numeric(company_revenues$TotalRevenue),na.rm=TRUE)
+  company_revenues$PretaxIncome[is.na(company_revenues$PretaxIncome)]<-mean(as.numeric(company_revenues$PretaxIncome),na.rm=TRUE)
+  company_revenues$BasicEPS[is.na(company_revenues$BasicEPS)]<-mean(as.numeric(company_revenues$BasicEPS),na.rm=TRUE)
+  
+  # let's convert our strings to numbers
+  numeric_TotalRevenue = as.numeric(company_revenues$TotalRevenue)
+  numeric_PretaxIncome = as.numeric(company_revenues$PretaxIncome)
+  numeric_BasicEPS = as.numeric(company_revenues$BasicEPS)
+  if(company == "McKesson"){
+    # let's run correlations for McKesson
+    print(paste("Correlations: ", company))
+    # McKesson Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_PretaxIncome,numeric_BasicEPS)
+  }
+  else if (company == "Microsoft Corp."){
+    # let's run correlations for McKesson
+    print(paste("Correlations: ", company))
+    # McKesson Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_PretaxIncome,numeric_BasicEPS)
+  }
+  else if (company == "Costco"){
+    
+    # so, here, we IMPUTE MISSING VALUES
+    print(" **** IMPUTE MISSING VALUES")
+    #View(company_revenues) # CAUSE, PERHAPS, I AM PASSING NA'S HERE?
+    
+    # let's run correlations for McKesson
+    print(paste("Correlations: ", company))
+    # McKesson Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_PretaxIncome,numeric_BasicEPS)
+  }
+  else if (company == "AmerisourceBergen Inc."){
+    # let's run correlations for McKesson
+    print(paste("Correlations: ", company))
+    # McKesson Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_PretaxIncome,numeric_BasicEPS)
+  } 
+}
+
+```
+
+*here, we display our current Business Performance*
+``` {r echo=TRUE}
+
+current_Business_Performance = function(company, company_revenues){
+  # we take a peak at McKesson Raw Business Performance
+  if(company == "McKesson"){
+    # we take a peak at United Raw Business Performance
+    McKesson_Performance = company_revenues
+    View(McKesson_Performance)
+  }
+  else if (company == "Microsoft Corp."){
+    # we take a peak at Microsoft Raw Business Performance
+    Microsoft_Performance = company_revenues
+    View(Microsoft_Performance)
+  }
+  else if (company == "Costco"){
+    # we take a peak at Costco Raw Business Performance
+    Costco_Performance = company_revenues
+    View(Costco_Performance)
+  }
+  else if (company == "AmerisourceBergen Inc."){
+    # we take a peak at AmerisourceBergen Raw Business Performance
+    AmerisourceBergen_Performance = company_revenues
+    View(AmerisourceBergen_Performance)
+  }
+  startYear = (company_revenues$Date)[1] # let's preview all the Business years
+  print(paste("company_revenues$Date)[1]", (company_revenues$Date)[1]))
+  years = length(company_revenues$Date)
+  endYear = (company_revenues$Date)[years]
+  # now, verify our years, for each Company
+  print(paste("StartYear and EndYear: ", company))
+  print(paste("StartYear", startYear))
+  print(paste("EndYear", endYear))
+  
+  # let's check for our correlations between our Tracked indicators
+  Correlation_Business_Performance(company, company_revenues)
+}
+
+```
+
+*now, let's get all the years of financial records*
+``` {r echo=TRUE}
+
+companies = c("McKesson", "Microsoft Corp.", "Costco", "AmerisourceBergen Inc.")
+for (company in companies){
+  # call renamed_columns function
+  if (company == "McKesson"){
+    print(paste("Company = ", company))
+    #
+    # let's format our Data record years, from 'X3.31.Y' -> '3.31.Y'
+    McKesson_Financial_Record_Years = renamed_columns(company, McKessonGroup_TotalRevenue, colnames_McKesson, McKesson_total_columns)
+    # now, let's combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,McKesson_Financial_Record_Years, McKessonGroup_TotalRevenue, 
+                                       McKessonGroup_PretaxIncome, McKessonGroup_BasicEPS)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let's call our time series plot function
+    time_plot(company, company_revenues)
+  }
+  else if (company == "Microsoft Corp."){
+    print(paste("Company = ", company))
+    # let's format our Data record years, from 'X12.31.Y' -> '12.31.Y'
+    Microsoft_Financial_Record_Years = renamed_columns(company, Microsoft_TotalRevenue, colnames_Microsoft, Microsoft_total_columns)
+    # now, let's combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,Microsoft_Financial_Record_Years, Microsoft_TotalRevenue, 
+                                       Microsoft_PretaxIncome, Microsoft_BasicEPS)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let's call our time series plot function
+    time_plot(company, company_revenues)
+  }
+  else if (company == "Costco"){
+    print(paste("Company = ", company))
+    # let's format our Data record years, from 'X12.31.Y' -> '12.31.Y'
+    Costco_Financial_Record_Years = renamed_columns(company, Costco_TotalRevenue, colnames_Costco, Costco_total_columns)
+    # now, let's combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,Costco_Financial_Record_Years, Costco_TotalRevenue, 
+                                       Costco_PretaxIncome, Costco_BasicEPS)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let's call our time series plot function
+    time_plot(company, company_revenues)
+  }
+  else if (company == "AmerisourceBergen Inc."){
+    print(paste("Company = ", company))
+    # let's format our Data record years, from 'X12.31.Y' -> '12.31.Y'
+    AmerisourceBergen_Financial_Record_Years = renamed_columns(company, AmerisourceBergen_TotalRevenue, colnames_AmerisourceBergen, AmerisourceBergen_total_columns)
+    # now, let's combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,AmerisourceBergen_Financial_Record_Years, AmerisourceBergen_TotalRevenue, 
+                                       AmerisourceBergen_PretaxIncome, AmerisourceBergen_BasicEPS)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let's call our time series plot function
+    time_plot(company, company_revenues)
+  }
+  
+}
+
+```
+
+
+#Costco
+``` {r echo=TRUE}
+Costco_Records = company_records("Costco",Costco_Financial_Record_Years, Costco_TotalRevenue,
+                                 Costco_PretaxIncome, Costco_BasicEPS)
+```
+
+*We window scope Costco CEO's tenure at Costco, for performance metrics, Started his career at Google in 2004, and became its CEO in 2015*
+``` {r echo=TRUE}
+CEO_W_Craig_Costco_Ladder_Performances = function(Costco_Records){
+  
+  # now, we compute our numbers
+  W_Craig_Years_1984_2004 = Costco_Records[1:20,1] # 1984-2004, Role, Costco Operations
+  Craig_TotalRevenue_1984_2004 =  as.numeric(Costco_Records[1:20,2]) # Operations Years
+  Craig_PretaxIncome_1984_2004 = as.numeric(Costco_Records[1:20,3])
+  Craig_BasicEPS_1984_2004 = as.numeric(Costco_Records[1:20,4])
+  # Correlations: PretaxIncome vs. BasicEPS
+  corr_PretaxIncome_BasicEPS_84_04 = cor(Craig_PretaxIncome_1984_2004, Craig_BasicEPS_1984_2004)
+  
+  # now, we compute our numbers
+  W_Craig_Years_2004_2012 = Costco_Records[20:28,1] # 2004-2012, Role, EVP Merchandising, Costco
+  length(W_Craig_Years_2004_2012)
+  Craig_TotalRevenue_2004_2012 =  as.numeric(Costco_Records[20:28,2]) # EVP Merchandising Years
+  Craig_PretaxIncome_2004_2012 = as.numeric(Costco_Records[20:28,3])
+  Craig_BasicEPS_2004_2012 = as.numeric(Costco_Records[20:28,4])
+  # Correlations: PretaxIncome vs. BasicEPS
+  #TotaRev_Corr_1984_2004 = cor(Craig_TotalRevenue_1984_2004, Craig_TotalRevenue_2004_2012) # 1st TotalRevenue correlation
+  corr_PretaxIncome_BasicEPS_04_12 = cor(Craig_PretaxIncome_2004_2012, Craig_BasicEPS_2004_2012)
+  
+  # now, we compute our numbers
+  W_Craig_Years_2012_ = Costco_Records[28:38,1] # 2012+, Role, CEO, Costco
+  length(W_Craig_Years_2012_)
+  Craig_TotalRevenue_2012_ =  as.numeric(Costco_Records[28:38,2]) # CEO Years
+  Craig_PretaxIncome_2012_ = as.numeric(Costco_Records[28:38,3])
+  Craig_BasicEPS_2012_ = as.numeric(Costco_Records[28:38,4])
+  # Correlations: PretaxIncome vs. BasicEPS
+  #TotaRev_Corr_2004_2012 = cor(Craig_TotalRevenue_2004_2012, Craig_TotalRevenue_2012_) # 2nd TotalRevenue correlation
+  corr_PretaxIncome_BasicEPS84_12_22 = cor(Craig_PretaxIncome_2012_, Craig_BasicEPS_2012_)
+  
+  # now, we split the tenure years for all three roles into equal bucketts that we can graph
+  
+  
+  # Tenure: 1984-2004 TotalRevenue($)
+  plot(W_Craig_Years_1984_2004 , Craig_TotalRevenue_1984_2004, col = "red", pch = 19, bty = "n", lwd = 2.0, type = "l", xlab  = "Years", ylab = "TotalRevenu($)", 
+       main = str_c("Costco: Operations, W Craig(1984:2004) TotalRevenu($)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 1984-2004) = ", round(corr_PretaxIncome_BasicEPS_84_04,4)), side=3)
+  legend("topright", c("TotalRevenue($) - (Red)"),lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  # here, we do the PretaxIncome
+  plot(W_Craig_Years_1984_2004, Craig_PretaxIncome_1984_2004, col = "green", pch = 19, bty = "n",  lwd = 2.0, type = "l", xlab  = "Years", ylab = "PretaxIncome($)", 
+       main = str_c("Costco: Operations, W Craig(1984:2004) PretaxIncome($)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 1984-2004) = ", round(corr_PretaxIncome_BasicEPS_84_04,4)), side=3)
+  legend("topright", c("PretaxIncome($) - (Green)"),lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  plot(W_Craig_Years_1984_2004 , Craig_BasicEPS_1984_2004, col = "blue", pch = 19, bty = "n", lwd = 2.0, type = "l", xlab  = "Years", ylab = "(%)", 
+       main = str_c("Costco: Operations, W Craig(1984:2004) BasicEPS(%)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 1984-2004) = ", round(corr_PretaxIncome_BasicEPS_84_04,4)), side=3)
+  legend("topright", c("BasicEPS(%) - (Blue)"),
+         lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  # Tenure: 2004-2012 TotalRevenue($)
+  plot(W_Craig_Years_2004_2012 , Craig_TotalRevenue_2004_2012, col = "red", pch = 19, bty = "n", lwd = 2.0, type = "l", xlab  = "Years", ylab = "TotalRevenu($)", 
+       main = str_c("Costco: EVP Merchandising, W Craig(2004:2012) TotalRevenu($)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 2004-2012) = ", round(corr_PretaxIncome_BasicEPS_04_12,4)), side=3)
+  legend("topright", c("TotalRevenue($) - (Red)"),lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  # here, we do the PretaxIncome
+  plot(W_Craig_Years_2004_2012, Craig_PretaxIncome_2004_2012, col = "green", pch = 19, bty = "n",  lwd = 2.0, type = "l", xlab  = "Years", ylab = "PretaxIncome($)", 
+       main = str_c("Costco: EVP Merchandising, W Craig(2004:2012) PretaxIncome($)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 2004-2012) = ", round(corr_PretaxIncome_BasicEPS_04_12,4)), side=3)
+  legend("topright", c("PretaxIncome($) - (Green)"),lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  plot(W_Craig_Years_2004_2012 , Craig_BasicEPS_2004_2012, col = "blue", pch = 19, bty = "n", lwd = 2.0, type = "l", xlab  = "Years", ylab = "(%)", 
+       main = str_c("Costco: EVP Merchandising, W Craig(2004:2012) BasicEPS(%)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 2004-2012) = ", round(corr_PretaxIncome_BasicEPS_04_12,4)), side=3)
+  legend("topright", c("BasicEPS(%) - (Blue)"),
+         lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  # Tenure: 2012-2022 TotalRevenue($)
+  plot(W_Craig_Years_2012_ , Craig_TotalRevenue_2012_, col = "red", pch = 19, bty = "n", lwd = 2.0, type = "l", xlab  = "Years", ylab = "TotalRevenu($)", 
+       main = str_c("Costco: CEO, W Craig(2012:2022) TotalRevenu($)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 2012-2022) = ", round(corr_PretaxIncome_BasicEPS84_12_22,4)), side=3)
+  legend("topright", c("TotalRevenue($) - (Red)"),lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  
+  plot(W_Craig_Years_2012_, Craig_PretaxIncome_2012_, col = "green", pch = 19, bty = "n",  lwd = 2.0, type = "l", xlab  = "Years", ylab = "PretaxIncome($)", 
+       main = str_c("Costco: CEO, W Craig(2012:2022) PretaxIncome($)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 2012-2022) = ", round(corr_PretaxIncome_BasicEPS84_12_22,4)), side=3)
+  legend("topright", c("PretaxIncome($) - (Green)"),
+         lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  plot(W_Craig_Years_2012_ , Craig_BasicEPS_2012_, col = "blue", pch = 19, bty = "n", lwd = 2.0, type = "l", xlab  = "Years", ylab = "(%)", 
+       main = str_c("Costco: CEO, W Craig(2012:2022) BasicEPS(%)"))
+  mtext(str_c("W.Craig Correlations (PretaxIncome($) vs. BasicEPS(%): 2012-2022) = ", round(corr_PretaxIncome_BasicEPS84_12_22,4)), side=3)
+  legend("topright", c("BasicEPS(%) - (Blue)"),
+         lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+}
+
+```
+
+*let's check CEO Sunda Craig's two tenure performance*
+``` {r echo=TRUE}
+CEO_W_Craig_Costco_Ladder_Performances(Costco_Records)
+```
+
+
+#MODELING AND FORECASTING:
+
+*fitting models, perform analysis, and generating visualizations on Mckesson*
+``` {r echo=TRUE}
+fit_models <- function(data, title) {
+  values <- as.numeric(unlist(data))
+  ts_data <- ts(values, start = as.Date(McKesson_Financial_Record_Years[[1]]), frequency = 1)
+  plot(ts_data, main = title, ylab = title)
+  # Fit manual models
+  ses_model <- ses(ts_data)
+  holt_model <- holt(ts_data)
+  # Fit auto.arima models
+  arima_aic <- auto.arima(ts_data, ic = "aic")
+  arima_bic <- auto.arima(ts_data, ic = "bic")
+  # Print the model results
+  print("Manual Models:")
+  print(ses_model)
+  print(holt_model)
+  print("Auto.arima Models (AIC):")
+  print(arima_aic)
+  print("Auto.arima Models (BIC):")
+  print(arima_bic)
+  
+  # Residual analysis
+  residuals_ses <- residuals(ses_model)
+  residuals_holt <- residuals(holt_model)
+  residuals_arima_aic <- residuals(arima_aic)
+  residuals_arima_bic <- residuals(arima_bic)
+  # Plotting residuals
+  par(mfrow = c(2, 2))
+  plot(residuals_ses, type = "l", main = paste(title, " - SES Residuals"))
+  plot(residuals_holt, type = "l", main = paste(title, " - Holt Residuals"))
+  plot(residuals_arima_aic, type = "l", main = paste(title, " - Auto.arima (AIC) Residuals"))
+  plot(residuals_arima_bic, type = "l", main = paste(title, " - Auto.arima (BIC) Residuals"))
+  
+  # Ljung-Box test
+  ljung_box_test_ses <- Box.test(residuals_ses, lag = 20, type = "Ljung-Box")
+  ljung_box_test_holt <- Box.test(residuals_holt, lag = 20, type = "Ljung-Box")
+  ljung_box_test_arima_aic <- Box.test(residuals_arima_aic, lag = 20, type = "Ljung-Box")
+  ljung_box_test_arima_bic <- Box.test(residuals_arima_bic, lag = 20, type = "Ljung-Box")
+  # Printing Ljung-Box test results
+  print("Ljung-Box Test (p-values):")
+  print(ljung_box_test_ses$p.value)
+  print(ljung_box_test_holt$p.value)
+  print(ljung_box_test_arima_aic$p.value)
+  print(ljung_box_test_arima_bic$p.value)
+  
+  # Forecasts
+  forecast_ses <- forecast(ses_model, h = 5)$mean
+  forecast_holt <- forecast(holt_model, h = 5)$mean
+  forecast_arima_aic <- forecast(arima_aic, h = 5)$mean
+  forecast_arima_bic <- forecast(arima_bic, h = 5)$mean
+  # Print forecasts
+  print("Forecasts:")
+  print("SES:")
+  print(forecast_ses)
+  print("Holt:")
+  print(forecast_holt)
+  print("Auto.arima (AIC):")
+  print(forecast_arima_aic)
+  print("Auto.arima (BIC):")
+  print(forecast_arima_bic)
+  # Plotting forecasts
+  par(mfrow = c(1, 1))
+  plot(forecast_ses, main = paste(title, " - SES Forecast"))
+  plot(forecast_holt, main = paste(title, " - Holt Forecast"))
+  plot(forecast_arima_aic, main = paste(title, " - Auto.arima (AIC) Forecast"))
+  plot(forecast_arima_bic, main = paste(title, " - Auto.arima (BIC) Forecast"))
+}
+
+# McKesson's model:
+fit_models(McKessonGroup_TotalRevenue, "McKesson Total Revenue")
+fit_models(McKessonGroup_PretaxIncome, "McKesson Pretax Income")
+fit_models(McKessonGroup_BasicEPS, "McKesson Basic EPS")
+
+```
+
+
+*fitting models, perform analysis, and generate visualizations on Microsoft*
+``` {r echo=TRUE}
+fit_models <- function(data, title) {
+  values <- as.numeric(unlist(data))
+  ts_data <- ts(values, start = as.Date(Microsoft_Financial_Record_Years[[1]]), frequency = 1)
+  plot(ts_data, main = title, ylab = title)
+  # Fit manual models
+  ses_model <- ses(ts_data)
+  holt_model <- holt(ts_data)
+  # Fit auto.arima models
+  arima_aic <- auto.arima(ts_data, ic = "aic")
+  arima_bic <- auto.arima(ts_data, ic = "bic")
+  # Print the model results
+  print("Manual Models:")
+  print(ses_model)
+  print(holt_model)
+  print("Auto.arima Models (AIC):")
+  print(arima_aic)
+  print("Auto.arima Models (BIC):")
+  print(arima_bic)
+  
+  # Residual analysis
+  residuals_ses <- residuals(ses_model)
+  residuals_holt <- residuals(holt_model)
+  residuals_arima_aic <- residuals(arima_aic)
+  residuals_arima_bic <- residuals(arima_bic)
+  # Plotting residuals
+  par(mfrow = c(2, 2))
+  plot(residuals_ses, type = "l", main = paste(title, " - SES Residuals"))
+  plot(residuals_holt, type = "l", main = paste(title, " - Holt Residuals"))
+  plot(residuals_arima_aic, type = "l", main = paste(title, " - Auto.arima (AIC) Residuals"))
+  plot(residuals_arima_bic, type = "l", main = paste(title, " - Auto.arima (BIC) Residuals"))
+  
+  # Ljung-Box test
+  ljung_box_test_ses <- Box.test(residuals_ses, lag = 20, type = "Ljung-Box")
+  ljung_box_test_holt <- Box.test(residuals_holt, lag = 20, type = "Ljung-Box")
+  ljung_box_test_arima_aic <- Box.test(residuals_arima_aic, lag = 20, type = "Ljung-Box")
+  ljung_box_test_arima_bic <- Box.test(residuals_arima_bic, lag = 20, type = "Ljung-Box")
+  # Printing Ljung-Box test results
+  print("Ljung-Box Test (p-values):")
+  print(ljung_box_test_ses$p.value)
+  print(ljung_box_test_holt$p.value)
+  print(ljung_box_test_arima_aic$p.value)
+  print(ljung_box_test_arima_bic$p.value)
+  
+  # Forecasts
+  forecast_ses <- forecast(ses_model, h = 5)$mean
+  forecast_holt <- forecast(holt_model, h = 5)$mean
+  forecast_arima_aic <- forecast(arima_aic, h = 5)$mean
+  forecast_arima_bic <- forecast(arima_bic, h = 5)$mean
+  # Print forecasts
+  print("Forecasts:")
+  print("SES:")
+  print(forecast_ses)
+  print("Holt:")
+  print(forecast_holt)
+  print("Auto.arima (AIC):")
+  print(forecast_arima_aic)
+  print("Auto.arima (BIC):")
+  print(forecast_arima_bic)
+  # Plotting forecasts
+  par(mfrow = c(1, 1))
+  plot(forecast_ses, main = paste(title, " - SES Forecast"))
+  plot(forecast_holt, main = paste(title, " - Holt Forecast"))
+  plot(forecast_arima_aic, main = paste(title, " - Auto.arima (AIC) Forecast"))
+  plot(forecast_arima_bic, main = paste(title, " - Auto.arima (BIC) Forecast"))
+}
+
+# Microsoft Total Revenue
+fit_models(Microsoft_TotalRevenue, "Microsoft Total Revenue")
+fit_models(Microsoft_PretaxIncome, "Microsoft Pretax Income")
+fit_models(Microsoft_BasicEPS, "Microsoft Basic EPS")
+
+```
+
+*fit models, perform analysis, and generate visualizations on Costco*
+``` {r echo=TRUE}
+fit_models <- function(data, title) {
+  values <- as.numeric(unlist(data))
+  ts_data <- ts(values, start = as.Date(Costco_Financial_Record_Years[[1]]), frequency = 1)
+  plot(ts_data, main = title, ylab = title)
+  # Fit manual models
+  ses_model <- ses(ts_data)
+  holt_model <- holt(ts_data)
+  # Fit auto.arima models
+  arima_aic <- auto.arima(ts_data, ic = "aic")
+  arima_bic <- auto.arima(ts_data, ic = "bic")
+  # Print the model results
+  print("Manual Models:")
+  print(ses_model)
+  print(holt_model)
+  print("Auto.arima Models (AIC):")
+  print(arima_aic)
+  print("Auto.arima Models (BIC):")
+  print(arima_bic)
+  
+  # Residual analysis
+  residuals_ses <- residuals(ses_model)
+  residuals_holt <- residuals(holt_model)
+  residuals_arima_aic <- residuals(arima_aic)
+  residuals_arima_bic <- residuals(arima_bic)
+  # Plotting residuals
+  par(mfrow = c(2, 2))
+  plot(residuals_ses, type = "l", main = paste(title, " - SES Residuals"))
+  plot(residuals_holt, type = "l", main = paste(title, " - Holt Residuals"))
+  plot(residuals_arima_aic, type = "l", main = paste(title, " - Auto.arima (AIC) Residuals"))
+  plot(residuals_arima_bic, type = "l", main = paste(title, " - Auto.arima (BIC) Residuals"))
+  
+  # Ljung-Box test
+  ljung_box_test_ses <- Box.test(residuals_ses, lag = 20, type = "Ljung-Box")
+  ljung_box_test_holt <- Box.test(residuals_holt, lag = 20, type = "Ljung-Box")
+  ljung_box_test_arima_aic <- Box.test(residuals_arima_aic, lag = 20, type = "Ljung-Box")
+  ljung_box_test_arima_bic <- Box.test(residuals_arima_bic, lag = 20, type = "Ljung-Box")
+  # Printing Ljung-Box test results
+  print("Ljung-Box Test (p-values):")
+  print(ljung_box_test_ses$p.value)
+  print(ljung_box_test_holt$p.value)
+  print(ljung_box_test_arima_aic$p.value)
+  print(ljung_box_test_arima_bic$p.value)
+  
+  # Forecasts
+  forecast_ses <- forecast(ses_model, h = 5)$mean
+  forecast_holt <- forecast(holt_model, h = 5)$mean
+  forecast_arima_aic <- forecast(arima_aic, h = 5)$mean
+  forecast_arima_bic <- forecast(arima_bic, h = 5)$mean
+  # Print forecasts
+  print("Forecasts:")
+  print("SES:")
+  print(forecast_ses)
+  print("Holt:")
+  print(forecast_holt)
+  print("Auto.arima (AIC):")
+  print(forecast_arima_aic)
+  print("Auto.arima (BIC):")
+  print(forecast_arima_bic)
+  # Plotting forecasts
+  par(mfrow = c(1, 1))
+  plot(forecast_ses, main = paste(title, " - SES Forecast"))
+  plot(forecast_holt, main = paste(title, " - Holt Forecast"))
+  plot(forecast_arima_aic, main = paste(title, " - Auto.arima (AIC) Forecast"))
+  plot(forecast_arima_bic, main = paste(title, " - Auto.arima (BIC) Forecast"))
+}
+
+# Costco Total Revenue
+fit_models(Costco_TotalRevenue, "Costco Total Revenue")
+fit_models(Costco_PretaxIncome, "Costco Pretax Income")
+fit_models(Costco_BasicEPS, "Costco Basic EPS")
+
+```
+
+
+*fitting models, perform analysis, and generate visualizations on AmerisourceBergen*
+``` {r echo=TRUE}
+fit_models <- function(data, title) {
+  values <- as.numeric(unlist(data))
+  ts_data <- ts(values, start = as.Date(AmerisourceBergen_Financial_Record_Years[[1]]), frequency = 1)
+  plot(ts_data, main = title, ylab = title)
+  # Fit manual models
+  ses_model <- ses(ts_data)
+  holt_model <- holt(ts_data)
+  # Fit auto.arima models
+  arima_aic <- auto.arima(ts_data, ic = "aic")
+  arima_bic <- auto.arima(ts_data, ic = "bic")
+  # Print the model results
+  print("Manual Models:")
+  print(ses_model)
+  print(holt_model)
+  print("Auto.arima Models (AIC):")
+  print(arima_aic)
+  print("Auto.arima Models (BIC):")
+  print(arima_bic)
+  
+  # Residual analysis
+  residuals_ses <- residuals(ses_model)
+  residuals_holt <- residuals(holt_model)
+  residuals_arima_aic <- residuals(arima_aic)
+  residuals_arima_bic <- residuals(arima_bic)
+  # Plotting residuals
+  par(mfrow = c(2, 2))
+  plot(residuals_ses, type = "l", main = paste(title, " - SES Residuals"))
+  plot(residuals_holt, type = "l", main = paste(title, " - Holt Residuals"))
+  plot(residuals_arima_aic, type = "l", main = paste(title, " - Auto.arima (AIC) Residuals"))
+  plot(residuals_arima_bic, type = "l", main = paste(title, " - Auto.arima (BIC) Residuals"))
+  
+  # Ljung-Box test
+  ljung_box_test_ses <- Box.test(residuals_ses, lag = 20, type = "Ljung-Box")
+  ljung_box_test_holt <- Box.test(residuals_holt, lag = 20, type = "Ljung-Box")
+  ljung_box_test_arima_aic <- Box.test(residuals_arima_aic, lag = 20, type = "Ljung-Box")
+  ljung_box_test_arima_bic <- Box.test(residuals_arima_bic, lag = 20, type = "Ljung-Box")
+  # Printing Ljung-Box test results
+  print("Ljung-Box Test (p-values):")
+  print(ljung_box_test_ses$p.value)
+  print(ljung_box_test_holt$p.value)
+  print(ljung_box_test_arima_aic$p.value)
+  print(ljung_box_test_arima_bic$p.value)
+  
+  # Forecasts
+  forecast_ses <- forecast(ses_model, h = 5)$mean
+  forecast_holt <- forecast(holt_model, h = 5)$mean
+  forecast_arima_aic <- forecast(arima_aic, h = 5)$mean
+  forecast_arima_bic <- forecast(arima_bic, h = 5)$mean
+  # Print forecasts
+  print("SES:")
+  print(forecast_ses)
+  print("Holt:")
+  print(forecast_holt)
+  print("Auto.arima (AIC):")
+  print(forecast_arima_aic)
+  print("Auto.arima (BIC):")
+  print(forecast_arima_bic)
+  # Plotting forecasts
+  par(mfrow = c(1, 1))
+  plot(forecast_ses, main = paste(title, " - SES Forecast"))
+  plot(forecast_holt, main = paste(title, " - Holt Forecast"))
+  plot(forecast_arima_aic, main = paste(title, " - Auto.arima (AIC) Forecast"))
+  plot(forecast_arima_bic, main = paste(title, " - Auto.arima (BIC) Forecast"))
+}
+
+# AmerisourceBergen Total Revenue
+fit_models(AmerisourceBergen_TotalRevenue, "AmerisourceBergen Total Revenue")
+fit_models(AmerisourceBergen_PretaxIncome, "AmerisourceBergen Pretax Income")
+fit_models(AmerisourceBergen_BasicEPS, "AmerisourceBergen Basic EPS")
+
+```

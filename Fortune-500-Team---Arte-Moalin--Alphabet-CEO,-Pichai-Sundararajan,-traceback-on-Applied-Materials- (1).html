@@ -1,0 +1,3545 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head></head><body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div>
+
+
+
+<h1 class="title toc-ignore">Fortune-500-Team—Arte-Moalin–Alphabet-CEO,-Pichai-Sundararajan,-traceback-on-Applied-Materials-.R</h1>
+<h4 class="author">Arte Moalin</h4>
+<h4 class="date">2023-06-10</h4>
+
+</div>
+
+
+<pre class="r"><code># Team: Fortune 500
+# Group: 1
+# Student: Arte Moalin
+# Companies assigned: United Health Group, ExxonMobil, Birkshire Heather way, Alphabet,
+# with Applied Materials, as a Alphabet CEO Pichai Sundararajan traceback.
+# Business Performance Metrics assigned: TotalRevenue, CostOfRevenue &amp; GrossProfit
+# Course: DSC 425, Term Project
+# DePaul University
+# Professor: Dr. John McDonald
+
+# our libraries
+library(ggplot2)
+library(fBasics)
+library(lubridate)
+library(ggfortify)
+library(fpp2)
+library(zoo)
+library(float)
+library(parsedate)
+library(readr)
+library(stringr)
+library(gsubfn)
+library(plyr)
+library(tseries)
+library(hash) # for our Dictionary
+library(tidyquant)
+library(plotly)
+library(&quot;lmtest&quot;)
+library(backtest)
+library(float)
+library(readr)
+library(imputeTS) # replacing  a missing few values with &#39;0&#39;
+library(fBasics)
+library(TSstudio) # analysis and forecasting with TSstudion package
+source(&quot;eacf.R&quot;) # let&#39;s source our eacf.R
+source(&quot;Backtest.R&quot;) # and source, our Backtest.R
+
+# let&#39;s read our Company respective Data sets
+# let&#39;s read our Company respective Data sets
+# United Health Group, #5 on the Fortune 500 List
+UnitedHealth_Financials = read.csv(&quot;C:/Users/Arte Moalin/OneDrive/Desktop/425 - Term Project/UnitedHealth Financials.csv&quot;)
+# Exxon Mobil, #6 on the Fortune 500 List
+ExxonMobil_Financials = read.csv(&quot;C:/Users/Arte Moalin/OneDrive/Desktop/425 - Term Project/Exxon Financials.csv&quot;)
+# BirkShire Heatherwa, #7 on the Fortune 500 List
+BirkShire_Financials = read.csv(&quot;C:/Users/Arte Moalin/OneDrive/Desktop/425 - Term Project/Berkshire Financials.csv&quot;)
+# Alphabet Google, #8 on the Fortune 500 List
+Alphabet_Financials = read.csv(&quot;C:/Users/Arte Moalin/OneDrive/Desktop/425 - Term Project/Google Financials.csv&quot;)
+
+# Alphabet CEO, Pichai Sundararajan, traceback on Applied Materials
+AppliedMaterials_Financials = read.csv(&quot;C:/Users/Arte Moalin/OneDrive/Desktop/425 - Term Project/AppliedMaterials Financials.csv&quot;)
+# here, because Applied Materials records are longer than our Comparison entity - Alphabet, we truncate it&#39;s extra set
+AppliedMaterials_Financials = AppliedMaterials_Financials[1:55,1:25]
+
+# Business Performance Indicators Tracked
+# UHG
+UnitedHealthGroup_TotalRevenue = &quot;&quot; # initialize Business Performance indicators
+UnitedHealthGroup_CostOfRevenue = &quot;&quot;
+UnitedHealthGroup_GrossProfit = &quot;&quot;
+# ExxonMobil
+ExxonMobil_TotalRevenue = &quot;&quot;
+ExxonMobil_CostOfRevenue = &quot;&quot;
+ExxonMobil_GrossProfit = &quot;&quot;
+# BirkShire
+BirkShire_TotalRevenue = &quot;&quot;
+BirkShire_CostOfRevenue = &quot;&quot;
+BirkShire_GrossProfit = &quot;&quot;
+# Alphabet
+Alphabet_TotalRevenue = &quot;&quot;
+Alphabet_CostOfRevenue = &quot;&quot;
+Alphabet_GrossProfit = &quot;&quot;
+
+# Alphabet CEO, Pichai Sundararajan, traceback on Applied Materials
+AppliedMaterials_TotalRevenue = &quot;&quot;
+AppliedMaterials_CostOfRevenue = &quot;&quot;
+AppliedMaterials_GrossProfit = &quot;&quot;
+
+# let&#39;s display all the operating parameters associated with each Company is being evaluated on
+operating_performance_params = UnitedHealth_Financials[,1:1]
+operating_performance_params = c(str_c(operating_performance_params))
+print(&quot;Operating Performance Parameters, selections of which we Evalate Per Company:&quot;)</code></pre>
+<pre><code>## [1] &quot;Operating Performance Parameters, selections of which we Evalate Per Company:&quot;</code></pre>
+<pre class="r"><code>for (i in 1:length(operating_performance_params)){
+  # verify associated operating parameters for Business Operations and Performance Evaluations
+  print(operating_performance_params[i]) 
+}</code></pre>
+<pre><code>## [1] &quot;TotalRevenue&quot;
+## [1] &quot;\tOperatingRevenue&quot;
+## [1] &quot;CostOfRevenue&quot;
+## [1] &quot;GrossProfit&quot;
+## [1] &quot;OperatingExpense&quot;
+## [1] &quot;\tSellingGeneralAndAdministration&quot;
+## [1] &quot;\tDepreciationAmortizationDepletionIncomeStatement&quot;
+## [1] &quot;\t\tDepreciationAndAmortizationInIncomeStatement&quot;
+## [1] &quot;\t\t\tDepreciationIncomeStatement&quot;
+## [1] &quot;\tOtherTaxes&quot;
+## [1] &quot;\tOtherOperatingExpenses&quot;
+## [1] &quot;OperatingIncome&quot;
+## [1] &quot;NetNonOperatingInterestIncomeExpense&quot;
+## [1] &quot;\tInterestExpenseNonOperating&quot;
+## [1] &quot;OtherIncomeExpense&quot;
+## [1] &quot;\tGainOnSaleOfSecurity&quot;
+## [1] &quot;\tSpecialIncomeCharges&quot;
+## [1] &quot;\t\tRestructuringAndMergernAcquisition&quot;
+## [1] &quot;\t\tOtherSpecialCharges&quot;
+## [1] &quot;\t\tGainOnSaleOfBusiness&quot;
+## [1] &quot;PretaxIncome&quot;
+## [1] &quot;TaxProvision&quot;
+## [1] &quot;NetIncomeCommonStockholders&quot;
+## [1] &quot;\tNetIncome&quot;
+## [1] &quot;\t\tNetIncomeIncludingNoncontrollingInterests&quot;
+## [1] &quot;\t\t\tNetIncomeContinuousOperations&quot;
+## [1] &quot;\t\t\tNetIncomeExtraordinary&quot;
+## [1] &quot;\t\t\tNetIncomeFromTaxLossCarryforward&quot;
+## [1] &quot;\t\tMinorityInterests&quot;
+## [1] &quot;\tPreferredStockDividends&quot;
+## [1] &quot;\tOtherunderPreferredStockDividend&quot;
+## [1] &quot;DilutedNIAvailtoComStockholders&quot;
+## [1] &quot;BasicEPS&quot;
+## [1] &quot;DilutedEPS&quot;
+## [1] &quot;BasicAverageShares&quot;
+## [1] &quot;DilutedAverageShares&quot;
+## [1] &quot;TotalOperatingIncomeAsReported&quot;
+## [1] &quot;TotalExpenses&quot;
+## [1] &quot;NetIncomeFromContinuingAndDiscontinuedOperation&quot;
+## [1] &quot;NormalizedIncome&quot;
+## [1] &quot;InterestExpense&quot;
+## [1] &quot;NetInterestIncome&quot;
+## [1] &quot;EBIT&quot;
+## [1] &quot;EBITDA&quot;
+## [1] &quot;ReconciledCostOfRevenue&quot;
+## [1] &quot;ReconciledDepreciation&quot;
+## [1] &quot;NetIncomeFromContinuingOperationNetMinorityInterest&quot;
+## [1] &quot;TotalUnusualItemsExcludingGoodwill&quot;
+## [1] &quot;TotalUnusualItems&quot;
+## [1] &quot;NormalizedEBITDA&quot;
+## [1] &quot;TaxRateForCalcs&quot;
+## [1] &quot;TaxEffectOfUnusualItems&quot;</code></pre>
+<pre class="r"><code># now, let&#39;s get financial records  
+companies = c(&quot;United Health Group&quot;, &quot;ExxonMobil Corp.&quot;, &quot;BirkShire Heatherway&quot;, &quot;Alphabet Inc.&quot;, &quot;Applied Materials&quot;)
+for (company in companies){
+  if (company == &quot;United Health Group&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    CostOfRevenue = list()
+    GrossProfit = list()
+    # now, populate our lists()
+    TotalRevenue = append(TotalRevenue, str_c(UnitedHealth_Financials[1,3:40])) # get the TotalRevenue
+    CostOfRevenue =  append(CostOfRevenue, str_c(UnitedHealth_Financials[3,3:40]))
+    GrossProfit =  append(GrossProfit, str_c(UnitedHealth_Financials[4,3:40]))
+    # let&#39;s declare a vector, which we will turn into a dictionary
+    UHG = hash(keys = c(&quot;TotalRevenue&quot;, &quot;CostOfRevenue&quot;, &quot;GrossProfit&quot;),
+               values = c(list(TotalRevenue), list(CostOfRevenue), list(GrossProfit)))
+    # now, we associate our Total Revenue vars
+    UnitedHealthGroup_TotalRevenue = UHG$TotalRevenue
+    UnitedHealthGroup_CostOfRevenue = UHG$CostOfRevenue
+    UnitedHealthGroup_GrossProfit = UHG$GrossProfit
+    
+    print(&quot;UHG - Total Revenue&quot;)
+    print(UnitedHealthGroup_TotalRevenue)
+    print(&quot;------------------------------&quot;)
+  }
+  
+  # ExxonMobil Corp. 
+  else if (company == &quot;ExxonMobil Corp.&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    CostOfRevenue = list()
+    GrossProfit = list()
+    # let&#39; pull our Data set for our indicators
+    TotalRevenue = append(TotalRevenue, str_c(ExxonMobil_Financials[1,3:40])) # get the TotalRevenue
+    CostOfRevenue =  append(CostOfRevenue, str_c(ExxonMobil_Financials[3,3:40]))
+    GrossProfit =  append(GrossProfit, str_c(ExxonMobil_Financials[4,3:40]))
+    # let&#39;s declare a vector, which we will turn into a dictionary
+    ExxonMobil = hash(keys = c(&quot;TotalRevenue&quot;, &quot;CostOfRevenue&quot;, &quot;GrossProfit&quot;),
+                      values = c(list(TotalRevenue), list(CostOfRevenue), list(GrossProfit)))
+    # now, we verify our Business performance hash(),   
+    Exxon_Business_Performance = c(ExxonMobil$TotalRevenue,ExxonMobil$CostOfRevenue,
+                                   ExxonMobil$GrossProfit)
+    # now, we associate our Total Revenue vars
+    ExxonMobil_TotalRevenue = ExxonMobil$TotalRevenue
+    ExxonMobil_CostOfRevenue = ExxonMobil$CostOfRevenue
+    ExxonMobil_GrossProfit = ExxonMobil$GrossProfit
+    
+    print(&quot;ExxonMobil - Total Revenue&quot;)
+    print(ExxonMobil_TotalRevenue)
+    print(&quot;------------------------------&quot;)
+  }
+  
+  # BirkShire Heatherway
+  else if (company == &quot;BirkShire Heatherway&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    CostOfRevenue = list()
+    GrossProfit = list()
+    # let&#39; pull our Data set for our indicators
+    TotalRevenue = append(TotalRevenue, str_c(BirkShire_Financials[1,3:37])) # get the Total Revenue
+    CostOfRevenue =  append(CostOfRevenue, str_c(BirkShire_Financials[56,3:37])) # InterestExpense = BirkShire_Financials[56,3:37]
+    GrossProfit =  append(GrossProfit, str_c(BirkShire_Financials[2,3:37])) # TotalPremiumsEarned =  BirkShire_Financials[2,3:37]
+    
+    # let&#39;s declare a vector, which we will turn into a dictionary
+    BirkShire = hash(keys = c(&quot;TotalRevenue&quot;, &quot;CostOfRevenue&quot;, &quot;GrossProfit&quot;),
+                     values = c(list(TotalRevenue), list(CostOfRevenue), list(GrossProfit)))
+    # now, we verify our Business performance hash(),   
+    BirkShire_Business_Performance = c(BirkShire$TotalRevenue,BirkShire$CostOfRevenue,
+                                       BirkShire$GrossProfit)
+    # now, we associate our Total Revenue vars
+    BirkShire_TotalRevenue = BirkShire$TotalRevenue
+    BirkShire_CostOfRevenue = BirkShire$CostOfRevenue
+    BirkShire_GrossProfit = BirkShire$GrossProfit
+    
+    
+    print(&quot;BirkShire - Total Revenue&quot;)
+    print(BirkShire$GrossProfit)
+    print(&quot;------------------------------&quot;)
+  }
+  
+  # Alphabet Inc.
+  else if (company == &quot;Alphabet Inc.&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    CostOfRevenue = list()
+    GrossProfit = list()
+    # let&#39; pull our Data set for our indicators 
+    TotalRevenue = append(TotalRevenue, str_c(Alphabet_Financials[1,3:25])) # get the Total Revenue
+    CostOfRevenue =  append(CostOfRevenue, str_c(Alphabet_Financials[3,3:25]))
+    GrossProfit =  append(GrossProfit, str_c(Alphabet_Financials[4,3:25]))
+    # let&#39;s declare a vector, which we will turn into a dictionary
+    Alphabet = hash(keys = c(&quot;TotalRevenue&quot;, &quot;CostOfRevenue&quot;, &quot;GrossProfit&quot;),
+                    values = c(list(TotalRevenue), list(CostOfRevenue), list(GrossProfit)))
+    # now, let&#39;s update our global hash_Alphabet_Records
+    hash_Alphbabet_Records = hash(keys = c(&quot;TotalRevenue&quot;, &quot;CostOfRevenue&quot;, &quot;GrossProfit&quot;),
+                                  values = c(list(TotalRevenue), list(CostOfRevenue), list(GrossProfit)))
+    # now, we verify our Business performance hash(),   
+    Alphabet_Business_Performance = c(Alphabet$TotalRevenue,Alphabet$CostOfRevenue,
+                                      Alphabet$GrossProfit)
+    
+    #hash_Alphbabet_Records = Alphabet_Business_Performance  # get Alphabet&#39;s Performance to evaluate it&#39;s CEO
+    # now, we associate our Total Revenue vars
+    Alphabet_TotalRevenue = Alphabet$TotalRevenue
+    Alphabet_CostOfRevenue = Alphabet$CostOfRevenue
+    Alphabet_GrossProfit = Alphabet$GrossProfit
+    
+    print(&quot;Alphabet - Total Revenue&quot;)
+    print(Alphabet_TotalRevenue)
+    print(&quot;------------------------------&quot;)
+  }
+  
+  # Applied Materials
+  else if (company == &quot;Applied Materials&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # here, we just create lists of our indicators
+    TotalRevenue = list()
+    CostOfRevenue = list()
+    GrossProfit = list()
+    # let&#39; pull our Data set for our indicators 
+    TotalRevenue = append(TotalRevenue, str_c(AppliedMaterials_Financials[1,3:25])) # get the Total Revenue
+    CostOfRevenue =  append(CostOfRevenue, str_c(AppliedMaterials_Financials[3,3:25]))
+    GrossProfit =  append(GrossProfit, str_c(AppliedMaterials_Financials[4,3:25]))
+    # let&#39;s declare a vector, which we will turn into a dictionary
+    AppliedMaterials = hash(keys = c(&quot;TotalRevenue&quot;, &quot;CostOfRevenue&quot;, &quot;GrossProfit&quot;),
+                    values = c(list(TotalRevenue), list(CostOfRevenue), list(GrossProfit)))
+    # now, we verify our Business performance hash(),   
+    AppliedMaterials_Business_Performance = c(AppliedMaterials$TotalRevenue,AppliedMaterials$CostOfRevenue,
+                                              AppliedMaterials$GrossProfit)
+    
+    # now, we associate our Total Revenue vars
+    AppliedMaterials_TotalRevenue = AppliedMaterials$TotalRevenue
+    AppliedMaterials_CostOfRevenue = AppliedMaterials$CostOfRevenue
+    AppliedMaterials_GrossProfit = AppliedMaterials$GrossProfit
+    
+    print(&quot;Applied Materials - Total Revenue&quot;)
+    print(AppliedMaterials_TotalRevenue)
+    print(&quot;------------------------------&quot;)
+  }
+}</code></pre>
+<pre><code>## [1] &quot;Company =  United Health Group&quot;
+## [1] &quot;UHG - Total Revenue&quot;
+## [[1]]
+## [1] &quot;322,132,000,000&quot;
+## 
+## [[2]]
+## [1] &quot;285,273,000,000&quot;
+## 
+## [[3]]
+## [1] &quot;255,639,000,000&quot;
+## 
+## [[4]]
+## [1] &quot;240,269,000,000&quot;
+## 
+## [[5]]
+## [1] &quot;224,871,000,000&quot;
+## 
+## [[6]]
+## [1] &quot;200,136,000,000&quot;
+## 
+## [[7]]
+## [1] &quot;184,000,000,000&quot;
+## 
+## [[8]]
+## [1] &quot;156,397,000,000&quot;
+## 
+## [[9]]
+## [1] &quot;129,695,000,000&quot;
+## 
+## [[10]]
+## [1] &quot;121,744,000,000&quot;
+## 
+## [[11]]
+## [1] &quot;109,938,000,000&quot;
+## 
+## [[12]]
+## [1] &quot;101,862,000,000&quot;
+## 
+## [[13]]
+## [1] &quot;94,155,000,000&quot;
+## 
+## [[14]]
+## [1] &quot;87,138,000,000&quot;
+## 
+## [[15]]
+## [1] &quot;81,186,000,000&quot;
+## 
+## [[16]]
+## [1] &quot;75,431,000,000&quot;
+## 
+## [[17]]
+## [1] &quot;70,671,000,000&quot;
+## 
+## [[18]]
+## [1] &quot;44,866,000,000&quot;
+## 
+## [[19]]
+## [1] &quot;36,830,000,000&quot;
+## 
+## [[20]]
+## [1] &quot;28,566,000,000&quot;
+## 
+## [[21]]
+## [1] &quot;25,020,000,000&quot;
+## 
+## [[22]]
+## [1] &quot;23,454,000,000&quot;
+## 
+## [[23]]
+## [1] &quot;21,122,000,000&quot;
+## 
+## [[24]]
+## [1] &quot;19,562,000,000&quot;
+## 
+## [[25]]
+## [1] &quot;17,355,000,000&quot;
+## 
+## [[26]]
+## [1] &quot;11,794,000,000&quot;
+## 
+## [[27]]
+## [1] &quot;10,073,790,000&quot;
+## 
+## [[28]]
+## [1] &quot;5,670,878,000&quot;
+## 
+## [[29]]
+## [1] &quot;3,768,882,000&quot;
+## 
+## [[30]]
+## [1] &quot;2,527,300,000&quot;
+## 
+## [[31]]
+## [1] &quot;1,441,800,000&quot;
+## 
+## [[32]]
+## [1] &quot;847,100,000&quot;
+## 
+## [[33]]
+## [1] &quot;605,500,000&quot;
+## 
+## [[34]]
+## [1] &quot;412,000,000&quot;
+## 
+## [[35]]
+## [1] &quot;433,900,000&quot;
+## 
+## [[36]]
+## [1] &quot;435,400,000&quot;
+## 
+## [[37]]
+## [1] &quot;212,900,000&quot;
+## 
+## [[38]]
+## [1] &quot;101,200,000&quot;
+## 
+## [1] &quot;------------------------------&quot;
+## [1] &quot;Company =  ExxonMobil Corp.&quot;
+## [1] &quot;ExxonMobil - Total Revenue&quot;
+## [[1]]
+## [1] &quot;398,675,000,000&quot;
+## 
+## [[2]]
+## [1] &quot;285,640,000,000&quot;
+## 
+## [[3]]
+## [1] &quot;181,502,000,000&quot;
+## 
+## [[4]]
+## [1] &quot;264,938,000,000&quot;
+## 
+## [[5]]
+## [1] &quot;290,212,000,000&quot;
+## 
+## [[6]]
+## [1] &quot;237,162,000,000&quot;
+## 
+## [[7]]
+## [1] &quot;226,094,000,000&quot;
+## 
+## [[8]]
+## [1] &quot;268,882,000,000&quot;
+## 
+## [[9]]
+## [1] &quot;411,939,000,000&quot;
+## 
+## [[10]]
+## [1] &quot;438,255,000,000&quot;
+## 
+## [[11]]
+## [1] &quot;453,123,000,000&quot;
+## 
+## [[12]]
+## [1] &quot;486,429,000,000&quot;
+## 
+## [[13]]
+## [1] &quot;372,544,000,000&quot;
+## 
+## [[14]]
+## [1] &quot;303,443,000,000&quot;
+## 
+## [[15]]
+## [1] &quot;477,359,000,000&quot;
+## 
+## [[16]]
+## [1] &quot;404,552,000,000&quot;
+## 
+## [[17]]
+## [1] &quot;377,635,000,000&quot;
+## 
+## [[18]]
+## [1] &quot;370,680,000,000&quot;
+## 
+## [[19]]
+## [1] &quot;298,035,000,000&quot;
+## 
+## [[20]]
+## [1] &quot;246,738,000,000&quot;
+## 
+## [[21]]
+## [1] &quot;204,506,000,000&quot;
+## 
+## [[22]]
+## [1] &quot;213,488,000,000&quot;
+## 
+## [[23]]
+## [1] &quot;232,748,000,000&quot;
+## 
+## [[24]]
+## [1] &quot;160,883,000,000&quot;
+## 
+## [[25]]
+## [1] &quot;100,697,000,000&quot;
+## 
+## [[26]]
+## [1] &quot;120,279,000,000&quot;
+## 
+## [[27]]
+## [1] &quot;116,728,000,000&quot;
+## 
+## [[28]]
+## [1] &quot;107,893,000,000&quot;
+## 
+## [[29]]
+## [1] &quot;99,683,000,000&quot;
+## 
+## [[30]]
+## [1] &quot;97,825,000,000&quot;
+## 
+## [[31]]
+## [1] &quot;103,160,000,000&quot;
+## 
+## [[32]]
+## [1] &quot;102,847,000,000&quot;
+## 
+## [[33]]
+## [1] &quot;105,519,000,000&quot;
+## 
+## [[34]]
+## [1] &quot;86,656,000,000&quot;
+## 
+## [[35]]
+## [1] &quot;79,557,000,000&quot;
+## 
+## [[36]]
+## [1] &quot;76,416,000,000&quot;
+## 
+## [[37]]
+## [1] &quot;69,888,000,000&quot;
+## 
+## [[38]]
+## [1] &quot;86,673,000,000&quot;
+## 
+## [1] &quot;------------------------------&quot;
+## [1] &quot;Company =  BirkShire Heatherway&quot;
+## [1] &quot;BirkShire - Total Revenue&quot;
+## [[1]]
+## [1] &quot;74,645,000,000&quot;
+## 
+## [[2]]
+## [1] &quot;69,478,000,000&quot;
+## 
+## [[3]]
+## [1] &quot;63,401,000,000&quot;
+## 
+## [[4]]
+## [1] &quot;61,078,000,000&quot;
+## 
+## [[5]]
+## [1] &quot;57,418,000,000&quot;
+## 
+## [[6]]
+## [1] &quot;60,597,000,000&quot;
+## 
+## [[7]]
+## [1] &quot;45,881,000,000&quot;
+## 
+## [[8]]
+## [1] &quot;41,294,000,000&quot;
+## 
+## [[9]]
+## [1] &quot;41,253,000,000&quot;
+## 
+## [[10]]
+## [1] &quot;36,684,000,000&quot;
+## 
+## [[11]]
+## [1] &quot;34,545,000,000&quot;
+## 
+## [[12]]
+## [1] &quot;32,075,000,000&quot;
+## 
+## [[13]]
+## [1] &quot;30,749,000,000&quot;
+## 
+## [[14]]
+## [1] &quot;27,884,000,000&quot;
+## 
+## [[15]]
+## [1] &quot;25,525,000,000&quot;
+## 
+## [[16]]
+## [1] &quot;31,783,000,000&quot;
+## 
+## [[17]]
+## [1] &quot;23,964,000,000&quot;
+## 
+## [[18]]
+## [1] &quot;21,997,000,000&quot;
+## 
+## [[19]]
+## [1] &quot;21,085,000,000&quot;
+## 
+## [[20]]
+## [1] &quot;21,493,000,000&quot;
+## 
+## [[21]]
+## [1] &quot;19,182,000,000&quot;
+## 
+## [[22]]
+## [1] &quot;17,905,000,000&quot;
+## 
+## [[23]]
+## [1] &quot;19,343,000,000&quot;
+## 
+## [[24]]
+## [1] &quot;14,306,000,000&quot;
+## 
+## [[25]]
+## [1] &quot;5,481,000,000&quot;
+## 
+## [[26]]
+## [1] &quot;4,761,100,000&quot;
+## 
+## [[27]]
+## [1] &quot;4,117,800,000&quot;
+## 
+## [[28]]
+## [1] &quot;&quot;
+## 
+## [[29]]
+## [1] &quot;&quot;
+## 
+## [[30]]
+## [1] &quot;&quot;
+## 
+## [[31]]
+## [1] &quot;&quot;
+## 
+## [[32]]
+## [1] &quot;776,400,000&quot;
+## 
+## [[33]]
+## [1] &quot;&quot;
+## 
+## [[34]]
+## [1] &quot;&quot;
+## 
+## [[35]]
+## [1] &quot;&quot;
+## 
+## [1] &quot;------------------------------&quot;
+## [1] &quot;Company =  Alphabet Inc.&quot;
+## [1] &quot;Alphabet - Total Revenue&quot;
+## [[1]]
+## [1] &quot;282,836,000,000&quot;
+## 
+## [[2]]
+## [1] &quot;257,637,000,000&quot;
+## 
+## [[3]]
+## [1] &quot;182,527,000,000&quot;
+## 
+## [[4]]
+## [1] &quot;161,857,000,000&quot;
+## 
+## [[5]]
+## [1] &quot;136,819,000,000&quot;
+## 
+## [[6]]
+## [1] &quot;110,855,000,000&quot;
+## 
+## [[7]]
+## [1] &quot;90,272,000,000&quot;
+## 
+## [[8]]
+## [1] &quot;74,989,000,000&quot;
+## 
+## [[9]]
+## [1] &quot;66,001,000,000&quot;
+## 
+## [[10]]
+## [1] &quot;59,825,000,000&quot;
+## 
+## [[11]]
+## [1] &quot;50,175,000,000&quot;
+## 
+## [[12]]
+## [1] &quot;37,905,000,000&quot;
+## 
+## [[13]]
+## [1] &quot;29,321,000,000&quot;
+## 
+## [[14]]
+## [1] &quot;23,650,563,000&quot;
+## 
+## [[15]]
+## [1] &quot;21,795,550,000&quot;
+## 
+## [[16]]
+## [1] &quot;16,593,986,000&quot;
+## 
+## [[17]]
+## [1] &quot;10,604,917,000&quot;
+## 
+## [[18]]
+## [1] &quot;6,138,560,000&quot;
+## 
+## [[19]]
+## [1] &quot;3,189,223,000&quot;
+## 
+## [[20]]
+## [1] &quot;1,465,934,000&quot;
+## 
+## [[21]]
+## [1] &quot;439,508,000&quot;
+## 
+## [[22]]
+## [1] &quot;86,426,000&quot;
+## 
+## [[23]]
+## [1] &quot;19,108,000&quot;
+## 
+## [1] &quot;------------------------------&quot;
+## [1] &quot;Company =  Applied Materials&quot;
+## [1] &quot;Applied Materials - Total Revenue&quot;
+## [[1]]
+## [1] &quot;25,785,000,000&quot;
+## 
+## [[2]]
+## [1] &quot;23,063,000,000&quot;
+## 
+## [[3]]
+## [1] &quot;17,202,000,000&quot;
+## 
+## [[4]]
+## [1] &quot;14,608,000,000&quot;
+## 
+## [[5]]
+## [1] &quot;17,253,000,000&quot;
+## 
+## [[6]]
+## [1] &quot;14,537,000,000&quot;
+## 
+## [[7]]
+## [1] &quot;10,825,000,000&quot;
+## 
+## [[8]]
+## [1] &quot;9,659,000,000&quot;
+## 
+## [[9]]
+## [1] &quot;9,072,000,000&quot;
+## 
+## [[10]]
+## [1] &quot;7,509,000,000&quot;
+## 
+## [[11]]
+## [1] &quot;8,719,000,000&quot;
+## 
+## [[12]]
+## [1] &quot;10,517,000,000&quot;
+## 
+## [[13]]
+## [1] &quot;9,548,667,000&quot;
+## 
+## [[14]]
+## [1] &quot;5,013,607,000&quot;
+## 
+## [[15]]
+## [1] &quot;8,129,240,000&quot;
+## 
+## [[16]]
+## [1] &quot;9,734,856,000&quot;
+## 
+## [[17]]
+## [1] &quot;9,167,014,000&quot;
+## 
+## [[18]]
+## [1] &quot;6,991,823,000&quot;
+## 
+## [[19]]
+## [1] &quot;8,013,063,000&quot;
+## 
+## [[20]]
+## [1] &quot;4,477,291,000&quot;
+## 
+## [[21]]
+## [1] &quot;5,062,312,000&quot;
+## 
+## [[22]]
+## [1] &quot;7,343,248,000&quot;
+## 
+## [[23]]
+## [1] &quot;9,564,412,000&quot;
+## 
+## [1] &quot;------------------------------&quot;</code></pre>
+<pre class="r"><code># now, let&#39;s get the column names for each Entity
+# United Health
+colnames_UnitedHealth = colnames(UnitedHealth_Financials)
+colnames_UnitedHealth # preview UnitedHealth columns</code></pre>
+<pre><code>##  [1] &quot;UnitedHealth&quot; &quot;ttm&quot;          &quot;X12.31.2022&quot;  &quot;X12.31.2021&quot;  &quot;X12.31.2020&quot;  &quot;X12.31.2019&quot;  &quot;X12.31.2018&quot;  &quot;X12.31.2017&quot;  &quot;X12.31.2016&quot; 
+## [10] &quot;X12.31.2015&quot;  &quot;X12.31.2014&quot;  &quot;X12.31.2013&quot;  &quot;X12.31.2012&quot;  &quot;X12.31.2011&quot;  &quot;X12.31.2010&quot;  &quot;X12.31.2009&quot;  &quot;X12.31.2008&quot;  &quot;X12.31.2007&quot; 
+## [19] &quot;X12.31.2006&quot;  &quot;X12.31.2005&quot;  &quot;X12.31.2004&quot;  &quot;X12.31.2003&quot;  &quot;X12.31.2002&quot;  &quot;X12.31.2001&quot;  &quot;X12.31.2000&quot;  &quot;X12.31.1999&quot;  &quot;X12.31.1998&quot; 
+## [28] &quot;X12.31.1997&quot;  &quot;X12.31.1996&quot;  &quot;X12.31.1995&quot;  &quot;X12.31.1994&quot;  &quot;X12.31.1993&quot;  &quot;X12.31.1992&quot;  &quot;X12.31.1991&quot;  &quot;X12.31.1990&quot;  &quot;X12.31.1989&quot; 
+## [37] &quot;X12.31.1988&quot;  &quot;X12.31.1987&quot;  &quot;X12.31.1986&quot;  &quot;X12.31.1985&quot;</code></pre>
+<pre class="r"><code>UnitedHealth_total_columns = length(colnames_UnitedHealth) # get the number of columns
+UnitedHealth_total_columns</code></pre>
+<pre><code>## [1] 40</code></pre>
+<pre class="r"><code># re-compute the columns, leaving out the 1st two
+colnames_UnitedHealth = colnames_UnitedHealth[3:UnitedHealth_total_columns]
+UnitedHealth_total_columns = UnitedHealth_total_columns - 2
+UnitedHealth_total_columns</code></pre>
+<pre><code>## [1] 38</code></pre>
+<pre class="r"><code># ExxonMobil
+colnames_ExxonMobil = colnames(ExxonMobil_Financials)
+colnames_ExxonMobil # preview Exxon Mobil columns</code></pre>
+<pre><code>##  [1] &quot;Exxon&quot;       &quot;ttm&quot;         &quot;X12.31.2022&quot; &quot;X12.31.2021&quot; &quot;X12.31.2020&quot; &quot;X12.31.2019&quot; &quot;X12.31.2018&quot; &quot;X12.31.2017&quot; &quot;X12.31.2016&quot; &quot;X12.31.2015&quot;
+## [11] &quot;X12.31.2014&quot; &quot;X12.31.2013&quot; &quot;X12.31.2012&quot; &quot;X12.31.2011&quot; &quot;X12.31.2010&quot; &quot;X12.31.2009&quot; &quot;X12.31.2008&quot; &quot;X12.31.2007&quot; &quot;X12.31.2006&quot; &quot;X12.31.2005&quot;
+## [21] &quot;X12.31.2004&quot; &quot;X12.31.2003&quot; &quot;X12.31.2002&quot; &quot;X12.31.2001&quot; &quot;X12.31.2000&quot; &quot;X12.31.1999&quot; &quot;X12.31.1998&quot; &quot;X12.31.1997&quot; &quot;X12.31.1996&quot; &quot;X12.31.1995&quot;
+## [31] &quot;X12.31.1994&quot; &quot;X12.31.1993&quot; &quot;X12.31.1992&quot; &quot;X12.31.1991&quot; &quot;X12.31.1990&quot; &quot;X12.31.1989&quot; &quot;X12.31.1988&quot; &quot;X12.31.1987&quot; &quot;X12.31.1986&quot; &quot;X12.31.1985&quot;</code></pre>
+<pre class="r"><code>ExxonMobil_total_columns = length(colnames_ExxonMobil) # get the number of columns
+ExxonMobil_total_columns</code></pre>
+<pre><code>## [1] 40</code></pre>
+<pre class="r"><code># re-compute the columns, leaving out the 1st two
+colnames_ExxonMobil = colnames_ExxonMobil[3:ExxonMobil_total_columns]
+ExxonMobil_total_columns = ExxonMobil_total_columns - 2
+ExxonMobil_total_columns</code></pre>
+<pre><code>## [1] 38</code></pre>
+<pre class="r"><code># BirkShire
+colnames_BirkShire = colnames(BirkShire_Financials)
+colnames_BirkShire # preview BirkShire columns</code></pre>
+<pre><code>##  [1] &quot;Berkshire&quot;   &quot;ttm&quot;         &quot;X12.31.2022&quot; &quot;X12.31.2021&quot; &quot;X12.31.2020&quot; &quot;X12.31.2019&quot; &quot;X12.31.2018&quot; &quot;X12.31.2017&quot; &quot;X12.31.2016&quot; &quot;X12.31.2015&quot;
+## [11] &quot;X12.31.2014&quot; &quot;X12.31.2013&quot; &quot;X12.31.2012&quot; &quot;X12.31.2011&quot; &quot;X12.31.2010&quot; &quot;X12.31.2009&quot; &quot;X12.31.2008&quot; &quot;X12.31.2007&quot; &quot;X12.31.2006&quot; &quot;X12.31.2005&quot;
+## [21] &quot;X12.31.2004&quot; &quot;X12.31.2003&quot; &quot;X12.31.2002&quot; &quot;X12.31.2001&quot; &quot;X12.31.2000&quot; &quot;X12.31.1999&quot; &quot;X12.31.1998&quot; &quot;X12.31.1997&quot; &quot;X12.31.1996&quot; &quot;X12.31.1995&quot;
+## [31] &quot;X12.31.1994&quot; &quot;X12.31.1993&quot; &quot;X12.31.1992&quot; &quot;X12.31.1991&quot; &quot;X12.31.1990&quot; &quot;X12.31.1989&quot; &quot;X12.31.1988&quot;</code></pre>
+<pre class="r"><code>BirkShire_total_columns = length(colnames_BirkShire) # get the number of columns
+BirkShire_total_columns</code></pre>
+<pre><code>## [1] 37</code></pre>
+<pre class="r"><code># re-compute the columns, leaving out the 1st two
+colnames_BirkShire = colnames_BirkShire[3:BirkShire_total_columns]
+BirkShire_total_columns = BirkShire_total_columns - 2
+BirkShire_total_columns</code></pre>
+<pre><code>## [1] 35</code></pre>
+<pre class="r"><code># Alphabet
+colnames_Alphabet  = colnames(Alphabet_Financials)
+colnames_Alphabet # preview Alphabet columns</code></pre>
+<pre><code>##  [1] &quot;Google&quot;      &quot;ttm&quot;         &quot;X12.31.2022&quot; &quot;X12.31.2021&quot; &quot;X12.31.2020&quot; &quot;X12.31.2019&quot; &quot;X12.31.2018&quot; &quot;X12.31.2017&quot; &quot;X12.31.2016&quot; &quot;X12.31.2015&quot;
+## [11] &quot;X12.31.2014&quot; &quot;X12.31.2013&quot; &quot;X12.31.2012&quot; &quot;X12.31.2011&quot; &quot;X12.31.2010&quot; &quot;X12.31.2009&quot; &quot;X12.31.2008&quot; &quot;X12.31.2007&quot; &quot;X12.31.2006&quot; &quot;X12.31.2005&quot;
+## [21] &quot;X12.31.2004&quot; &quot;X12.31.2003&quot; &quot;X12.31.2002&quot; &quot;X12.31.2001&quot; &quot;X12.31.2000&quot;</code></pre>
+<pre class="r"><code>Alphabet_total_columns = length(colnames_Alphabet) # get the number of columns
+Alphabet_total_columns</code></pre>
+<pre><code>## [1] 25</code></pre>
+<pre class="r"><code># re-compute the columns, leaving out the 1st two
+colnames_Alphabet = colnames_Alphabet[3:Alphabet_total_columns]
+Alphabet_total_columns = Alphabet_total_columns - 2
+Alphabet_total_columns</code></pre>
+<pre><code>## [1] 23</code></pre>
+<pre class="r"><code># Applied Materials
+# Alphabet
+colnames_AppliedMaterials  = colnames(AppliedMaterials_Financials)
+colnames_AppliedMaterials # preview Applied Materials columns</code></pre>
+<pre><code>##  [1] &quot;Applied.Materials&quot; &quot;ttm&quot;               &quot;X10.31.2022&quot;       &quot;X10.31.2021&quot;       &quot;X10.31.2020&quot;       &quot;X10.31.2019&quot;       &quot;X10.31.2018&quot;      
+##  [8] &quot;X10.31.2017&quot;       &quot;X10.31.2016&quot;       &quot;X10.31.2015&quot;       &quot;X10.31.2014&quot;       &quot;X10.31.2013&quot;       &quot;X10.31.2012&quot;       &quot;X10.31.2011&quot;      
+## [15] &quot;X10.31.2010&quot;       &quot;X10.31.2009&quot;       &quot;X10.31.2008&quot;       &quot;X10.31.2007&quot;       &quot;X10.31.2006&quot;       &quot;X10.31.2005&quot;       &quot;X10.31.2004&quot;      
+## [22] &quot;X10.31.2003&quot;       &quot;X10.31.2002&quot;       &quot;X10.31.2001&quot;       &quot;X10.31.2000&quot;</code></pre>
+<pre class="r"><code>AppliedMaterials_total_columns = length(colnames_AppliedMaterials) # get the number of columns
+AppliedMaterials_total_columns</code></pre>
+<pre><code>## [1] 25</code></pre>
+<pre class="r"><code># re-compute the columns, leaving out the 1st two
+colnames_AppliedMaterials = colnames_AppliedMaterials[3:AppliedMaterials_total_columns]
+AppliedMaterials_total_columns = AppliedMaterials_total_columns - 2
+AppliedMaterials_total_columns</code></pre>
+<pre><code>## [1] 23</code></pre>
+<pre class="r"><code># rename the column names to actual dates
+renamed_columns = function(company, TotalRevenue, colnames, total_columns){
+  column_count = length(colnames) # account for all column-years
+  print(paste(&quot;# of Years of Records: &quot;, column_count))
+  if(company == &quot;Applied Materials&quot;){
+    # start month for Applied Materials is different than all my other&#39;s
+    last_year_records = mdy(&quot;10.31.2022&quot;) # initialize last financial records year as &#39;12.31.2022&#39;
+  }
+  else{
+    # the rest of the records years are the same for all the other set of companies
+    last_year_records = mdy(&quot;12.31.2022&quot;) # initialize last financial records year as &#39;12.31.2022&#39;
+  }
+  
+  print(paste(&quot;Last Record Years:&quot;,last_year_records))
+  first_year = last_year_records - dyears(total_columns - 1) # get our 1st record year 
+  first_year = first_year + ddays(1) # account for the offset day 
+  print(paste(&quot;1st Year Financials Recorded:&quot;, first_year))
+  
+  # now, let&#39;s update the column names, removing the &#39;X&#39; variable
+  mdy_column_records = list() # initialize and empty list
+  for (col in 1:total_columns){
+    colname = c(colnames[col]) # vectorize the single column-name
+    new_col = str_replace(colname, &quot;[X]&quot;, &quot;&quot;) # remove the &quot;X&quot;
+    new_col = str_replace_all(new_col, &quot;[.]&quot;, &quot;/&quot;) # now, let&#39;s replace all the &#39;.&#39; in our Dates
+    new_col = str_c(new_col) # convert to a string
+    parsed_date = parse_date(new_col, &quot;%m/%d/%Y&quot;) # parse our respective dates
+    # now, convert to a character
+    parsed_date = str_c(parsed_date) # vectorize date
+    mdy_column_records = append(mdy_column_records, parsed_date) # save the updated column name as &#39;12/31/Y&#39;, as a date string
+  }
+  rev_parsed_dates = rev(mdy_column_records) # reverse the record columns from the earliest to the newest
+  # dates from the &#39;oldest date -&gt; newest date&#39;, so top -&gt; bottom, as in 1985 ...&gt; 2022
+  return(rev_parsed_dates)
+}
+
+
+# here, we call out Company Stats function
+Company_Stats = function(company, records_df){
+  # let&#39;s get the Business Performance Metrics
+  print(paste(&quot;Company Performance: &quot;, company))
+  print(head(records_df)) # Company Record Performance, let&#39;s just view a few
+  # now, let&#39;s run the basic statistics of our Business Performance Indicators
+  company_TotalRevenue = as.numeric(records_df$TotalRevenue)
+  company_TotalRevenue = basicStats(company_TotalRevenue)
+  # CostOfRevenue stats
+  company_CostOfRevenue = as.numeric(records_df$CostOfRevenue)
+  company_CostOfRevenue = basicStats(company_CostOfRevenue)
+  # GrossProfit stats
+  company_GrossProfit = as.numeric(records_df$GrossProfit)
+  company_GrossProfit = basicStats(company_GrossProfit)
+  #print(paste(&quot;Company Descriptives -&quot;, company))
+  #print(company_TotalRevenue) # Company Record Performance Statistics
+  #print(company_CostOfRevenue)
+  #print(company_GrossProfit)
+}
+
+
+# now, let&#39;s combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+company_records = function(company,Financial_Record_Years, TotalRevenue,
+                           CostOfRevenue, GrossProfit){
+  # let&#39;s reverse our Yearly Revenues, CostOfRevenue, and GrossProfit to match 
+  # our new Financial Record Years
+  TotalRevenue = rev(TotalRevenue)
+  CostOfRevenue = rev(CostOfRevenue)
+  GrossProfit = rev(GrossProfit)
+  financial_years_len = length(Financial_Record_Years)
+  revenue_len = length(TotalRevenue)
+  # compute the length of record for each company, respectively
+  if (financial_years_len == revenue_len){
+    print(paste(&quot;Years of Revenue = &quot;, financial_years_len))
+    print(paste(&quot;Revenue Records = &quot;, revenue_len))
+    print(&quot;Our corresponding records match in length&quot;)
+  }
+  else if (financial_years_len != revenue_len){
+    print(paste(&quot;Years of Revenue = &quot;, financial_years_len))
+    print(paste(&quot;Revenue Records = &quot;, revenue_len))
+    print(&quot;Our corresponding records DO NOT match in lenght&quot;)
+  }
+  Financial_Record_Years = as.character(Financial_Record_Years) # character type, later to Data type
+  # now, convert the Revenue&#39;s to a numeric
+  TotalRevenue = as.character(TotalRevenue) # character type, later to Numeric type
+  CostOfRevenue = as.character(CostOfRevenue)
+  GrossProfit = as.character(GrossProfit)
+  # data frame our record 
+  records_df = data.frame(Financial_Record_Years, TotalRevenue, CostOfRevenue,
+                          GrossProfit) 
+  names(records_df) = c(&quot;Date&quot;, &quot;TotalRevenue&quot;, &quot;CostOfRevenue&quot;, &quot;GrossProfit&quot;) # assign column names
+  records_df$Date = c(records_df$Date)
+  records_df$Date &lt;- as.Date(records_df$Date, format = &quot;%Y-%m-%d&quot;)
+  
+  # now, let&#39;s update the column names, removing the &#39;X&#39; variable
+  revenue_vals = list() # initialize and empty list
+  cost_of_revenue_vals = list()
+  gross_profit_vals = list()
+  for (col in 1:revenue_len){
+    rev_val = c(TotalRevenue[col]) # vectorize the single column-name
+    cost_of_revenue_val = c(CostOfRevenue[col])
+    gross_profit_val = c(GrossProfit[col])
+    rev_len = length(rev_val)
+    my_vec_updated &lt;- as.numeric(gsub(&quot;,&quot;, &quot;&quot;, rev_val))                   # Convert example vector
+    my_cost_of_revenue_updated &lt;- as.numeric(gsub(&quot;,&quot;, &quot;&quot;, cost_of_revenue_val))
+    my_gross_profit_updated &lt;- as.numeric(gsub(&quot;,&quot;, &quot;&quot;, gross_profit_val))
+    revenue_vals = append(revenue_vals, my_vec_updated) # save the updated column name as &#39;12/31/Y&#39;, as a date string 
+    cost_of_revenue_vals = append(cost_of_revenue_vals, my_cost_of_revenue_updated)
+    gross_profit_vals = append(gross_profit_vals, my_gross_profit_updated)
+  }
+  # now, let&#39;s update our records
+  records_df$TotalRevenue = revenue_vals
+  records_df$CostOfRevenue = cost_of_revenue_vals
+  records_df$GrossProfit = gross_profit_vals
+  
+  # let&#39;s impute missing values with the means, respectively
+  records_df$TotalRevenue[is.na(records_df$TotalRevenue)]&lt;-mean(as.numeric(records_df$TotalRevenue),na.rm=TRUE)
+  records_df$CostOfRevenue[is.na(records_df$CostOfRevenue)]&lt;-mean(as.numeric(records_df$CostOfRevenue),na.rm=TRUE)
+  records_df$GrossProfit[is.na(records_df$GrossProfit)]&lt;-mean(as.numeric(records_df$GrossProfit),na.rm=TRUE)
+  
+  # here, we call out Company Stats function
+  Company_Stats(company, records_df)
+  return(records_df) # return the company record performances
+}
+
+
+
+
+# let&#39;s dive deep into our acf() graphs, for companies like Walmart
+method_acf = function(company, TotalRevenue_, CostOfRev_, GrossProf_) # USING FOR: (exploration and ACF$residuals GRAPHS)
+{
+  # and now we run our ACF&#39;s for all 3 indicators in each Companies
+  # TotalRevenue($)
+  acf_TotalRevenue = acf(TotalRevenue_, lag.max = 15, main = str_c(company, &quot;, acf(TotaRevenue($)&quot;))
+  acf_TotalRevenue # TotalRevenue($)
+  # CostOfRevenue($)
+  acf_CostOfRevenue = acf(CostOfRev_, lag.max = 15, main = str_c(company, &quot;, acf(CostOfRevenue($)&quot;))
+  acf_CostOfRevenue # CostOfRevenue($)
+  # GrossProfit($)
+  acf_GrossProfit = acf(GrossProf_, lag.max = 15, main = str_c(company, &quot;, acf(GrossProfit($)&quot;))
+  acf_GrossProfit # GrossProfit($)
+}
+
+
+# now, let&#39;s check our Manual Model Residuals, acf()
+method_acf_with_residuals = function(company, modelfit_fit_TotalRevenue, 
+                                     modelfit_fit_CostOfRevenue, 
+                                     modelfit_fit_GrossProfit) # for acf(model$residuals)
+{
+  # and now we run our ACF&#39;s for all 3 indicators in each Companies
+  # TotalRevenue($)
+  acf_TotalRevenue = acf(modelfit_fit_TotalRevenue, lag.max = 15, type = c(&quot;correlation&quot;), main = str_c(company, &quot;, acf(TotaRevenue($)$Residuals&quot;))
+  acf_TotalRevenue # TotalRevenue($)
+  # CostOfRevenue($)
+  acf_CostOfRevenue = acf(modelfit_fit_CostOfRevenue, lag.max = 15, type = c(&quot;correlation&quot;), main = str_c(company, &quot;, acf(CostOfRevenue($)$Residuals&quot;))
+  acf_CostOfRevenue # CostOfRevenue($)
+  # GrossProfit($)
+  acf_GrossProfit = acf(modelfit_fit_GrossProfit, lag.max = 15, type = c(&quot;correlation&quot;), main = str_c(company, &quot;, acf(GrossProfit($)$Residuals&quot;))
+  acf_GrossProfit # GrossProfit($)
+}
+
+
+# now, let&#39;s check our Manual Model Residuals, pacf()
+method_pacf_with_residuals = function(company, modelfit_fit_TotalRevenue, 
+                                     modelfit_fit_CostOfRevenue, 
+                                     modelfit_fit_GrossProfit) # for pacf(model$residuals)
+{
+  # and now we run our ACF&#39;s for all 3 indicators in each Companies
+  # TotalRevenue($)
+  acf_TotalRevenue = pacf(modelfit_fit_TotalRevenue, lag.max = 15, main = str_c(company, &quot;, pacf(TotaRevenue($)$Residuals&quot;))
+  acf_TotalRevenue # TotalRevenue($)
+  # CostOfRevenue($)
+  acf_CostOfRevenue = pacf(modelfit_fit_CostOfRevenue, lag.max = 15, main = str_c(company, &quot;, pacf(CostOfRevenue($)$Residuals&quot;))
+  acf_CostOfRevenue # CostOfRevenue($)
+  # GrossProfit($)
+  acf_GrossProfit = pacf(modelfit_fit_GrossProfit, lag.max = 15, main = str_c(company, &quot;, pacf(GrossProfit($)$Residuals&quot;))
+  acf_GrossProfit # GrossProfit($)
+}
+
+# and now we run our PACF&#39;s for all 3 indicators in each Companies
+# TotalRevenue($)
+method_pacf = function(company, TotalRevenue_, CostOfRev_, GrossProf_) # USING FOR: (exploration and PACF$residuals GRAPHS)
+{
+  # and to do so, we need to remove any trends in the series
+  pacf_TotalRevenue = pacf(TotalRevenue_, lag.max = 15, main = str_c(company, &quot;:- lags(TotaRevenue($))&quot;))
+  pacf_TotalRevenue # TotalRevenue($)
+  pacf_CostOfRevenue = pacf(CostOfRev_, lag.max = 15, main = str_c(company, &quot;:-  lags(CostOfRevenue($))&quot;))
+  pacf_CostOfRevenue # CostOfRevenue($)
+  pacf_GrossProfit = pacf(GrossProf_, lag.max = 15, main = str_c(company, &quot;:-  lags(GrossProfit($))&quot;))
+  pacf_GrossProfit # GrossProfit($)
+  }
+
+# and now we run our EACF&#39;s for all 3 indicators in each Companies
+# now, let&#39;s run the eacf
+model_eacf = function(company, inidicator, modelfit_auto_TotalRevenue)
+{
+  # and now, we run our EACF&#39;s for all three indicators
+  # here, we verify the auto.arima(..parameters ...), and build our own, manually, based on auto.arima()
+  # to save time, given the size of the Data set for the 3 Companies studied here.
+  print(eacf(modelfit_auto_TotalRevenue$residuals)) 
+  
+}
+
+
+
+# let&#39;s test if our Model Parameter is Stationary, or Otherwise
+print(&quot;Checking for Stationarity and White Noise&quot;)</code></pre>
+<pre><code>## [1] &quot;Checking for Stationarity and White Noise&quot;</code></pre>
+<pre class="r"><code>method_BoxTest = function(company,indicator, modelfit_indicator)
+{
+  # let&#39;s check for Stationarity and White Noise
+  print(&quot;Checking for Stationarity and White Noise&quot;)
+  print(Box.test(modelfit_indicator$residuals, lag = 15, type = &quot;Ljung-Box&quot;))
+}
+
+method_adf = function(company, indicator, modelfit_indicator)
+{
+  # p-value &gt; 0.05, we conclude that there is no enough evidence to reject the Null hypothesis, 
+  # meaning that the time series is nonstationary.
+  adf.test(modelfit_indicator$residuals) # here, we test the xreg Arima(1,0,1) from our above test
+}
+# now, let&#39;s run our KPSS
+method_KPSS = function(company,indicator, modelfit_indicator)
+{
+  # p-value of the test is less than some significance level (e.g. α = .05),
+  # then we reject the null hypothesis and conclude that the time series is not trend stationary.
+  kpss_test = kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;) # H0: The time series is trend stationary; HA: The time series is not trend stationary.
+  print(kpss_test)
+}
+
+
+# let&#39;s test if our Model Parameter is Stationary, or Otherwise
+print(&quot;Checking for Stationarity and White Noise&quot;)</code></pre>
+<pre><code>## [1] &quot;Checking for Stationarity and White Noise&quot;</code></pre>
+<pre class="r"><code>method_coeftest = function(company,indicator, modelfit_indicator)
+{
+  # let&#39;s check for Stationarity and White Noise
+  print(&quot;Check for Significant Cofficients&quot;)
+  print(coeftest(modelfit_indicator$residuals))
+}
+
+
+# here, we display our cofficients for the Model
+method_cofficients = function(company,indicator, modelfit_indicator) # for all Models
+{
+  
+  # display the Model coefficients
+  #print(&quot; *** Modelfit auto.arima() *** &quot;)
+  print(modelfit_indicator)
+  #print(&quot;-----------&quot;)
+  print(coefficients(modelfit_indicator))
+  #method_coeftest(company,indicator, modelfit_indicator)
+  # now, let&#39;s check if our Modeled Parameter is a Stationary
+  method_BoxTest(company,indicator, modelfit_indicator)
+  # and here, we run our Dickey-Fullerton test
+  method_adf(company, indicator, modelfit_indicator)
+  # now, let&#39;s run our KPSS
+  method_KPSS(company,indicator, modelfit_indicator)
+  print(&quot;-----------------------------------------------&quot;)
+  }
+
+
+# let&#39;s run our auto.arima() for each indicator and for each company
+# totalRev,costofRev,grossProf are the original Data Wragled. 
+# TotalRevenue_, CostOfRev_, GrossProf_ are their corresponding ts()&#39;s
+method_auto_arima = function(company, totalRev,costofRev,grossProf, TotalRevenue_, CostOfRev_, GrossProf_)
+{
+  # TotalRevenue($)
+  modelfit_auto_TotalRevenue = auto.arima(TotalRevenue_) # TotalRevenue_ is a ts()
+  inidicator = &quot;TotalRevenue($)&quot;
+  print(&quot; *** Modelfit auto.arima() *** &quot;)
+  #print(modelfit_indicator)
+  method_cofficients(company,indicator, modelfit_auto_TotalRevenue)
+  # now, let&#39;s run the eacf
+  #model_eacf(company, inidicator, modelfit_auto_TotalRevenue)
+  
+  # CostOfRevenue($)
+  modelfit_auto_CostOfRevenue = auto.arima(CostOfRev_) # CostOfRev_ is a ts()
+  inidicator = &quot;CostOfRevenue($)&quot;
+  print(&quot; *** Modelfit auto.arima() *** &quot;)
+  method_cofficients(company,indicator, modelfit_auto_CostOfRevenue) 
+  
+  # GrossProfit($)
+  modelfit_auto_GrossProfit = auto.arima(GrossProf_) # GrossProf_ is a ts()
+  inidicator = &quot;GrossProfit($)&quot;
+  print(&quot; *** Modelfit auto.arima() *** &quot;)
+  method_cofficients(company,indicator, modelfit_auto_GrossProfit)
+}
+
+# we plot the manual models&#39; residuals, checking for noise
+method_plot_modelResiduals = function(company, modelfit_UHG_TotalRevenue, modelfit_UHG_CostOfRevenue,modelfit_UHG_GrossProfit) 
+  {
+  # we plot the Manual Model Residuals
+  plot(modelfit_UHG_TotalRevenue$residuals, type = &quot;l&quot;, lwd = 2,  xlab = &quot;Years&quot;, ylab = &quot;TotalRevenue($), Residuals&quot;,
+       main = str_c(company, &quot;:- TotalRevenue($) Noise&quot;))
+  grid()
+  plot(modelfit_UHG_CostOfRevenue$residuals, type = &quot;l&quot;, lwd = 2, xlab = &quot;Years&quot;, ylab = &quot;CostOfRevenue($), Residuals&quot;,
+       main = str_c(company, &quot;:- CostOfRevenue($) Noise&quot;))
+  grid()
+  plot(modelfit_UHG_GrossProfit$residuals, type = &quot;l&quot;, lwd = 2,  xlab = &quot;Years&quot;, ylab = &quot;GrossProfit($), Residuals&quot;,
+       main = str_c(company, &quot;:- GrossProfit($) Noise&quot;))
+  grid()
+  }
+
+# now, we run backtest(), Model performance predictions 
+bactest_modelPerformance = function(company,manual_Model,model_ts)
+{
+  # now, let&#39;s compute the length of our Model ts()
+  param_size = length(model_ts)
+  # now, we display our Model Performance
+  print(backtest(manual_Model,model_ts, h = 1, orig = 0.8* param_size))
+  
+}
+# let&#39;s run a standard forecast, without a training and testing
+method_forecast = function(company, modelfit_TotalRevenue, modelfit_CostOfRevenue,modelfit_GrossProfit, TotalRevenue_, CostOfRev_, GrossProf_)
+{
+  data_TotalRev = length(TotalRevenue_)
+  plot(forecast(modelfit_TotalRevenue, h = 10, include = data_TotalRev), xlab = &quot;Years&quot;, ylab = &quot;TotalRevenue($)&quot;, main = str_c(company, &quot;:- TotalRevenue($)&quot;))
+  grid()
+  data_CostOfRev = length(CostOfRev_)
+  plot(forecast(modelfit_CostOfRevenue, h = 10, include = data_CostOfRev), xlab = &quot;Years&quot;, ylab = &quot;CostOfRevenue($)&quot;, main = str_c(company, &quot;:- CostOfRevenue($)&quot;))
+  grid()
+  data_GrossProf = length(GrossProf_)
+  plot(forecast(modelfit_GrossProfit, h = 10, include = data_GrossProf), xlab = &quot;Years&quot;, ylab = &quot;GrossProfit($)&quot;, main = str_c(company, &quot;:- GrossProfit($)&quot;))
+  grid()
+}
+
+method_param_correlations = function(company,TotalRevenue_, CostOfRev_,GrossProf_, vec_order)
+{
+  if(company == &quot;United Health Group&quot;)
+  {
+    fit1_correlations = arima(TotalRevenue_, xreg = CostOfRev_, order = c(vec_order))
+    params1 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(CostOfRevenue($))&quot;)
+    print(fit1_correlations)
+    print(coeftest(fit1_correlations))
+    plot(fit1_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params1))
+    grid()
+    
+    fit2_correlations = arima(TotalRevenue_, xreg = GrossProf_, order = c(vec_order))
+    params2 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(GrossProfit($))&quot;)
+    print(fit2_correlations)
+    print(coeftest(fit2_correlations))
+    plot(fit2_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params2))
+    grid()
+  }
+    
+  else if (company == &quot;ExxonMobil Corp.&quot;)
+  {
+    fit1_correlations = arima(TotalRevenue_, xreg = CostOfRev_, order = c(vec_order))
+    params1 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(CostOfRevenue($))&quot;)
+    print(fit1_correlations)
+    print(coeftest(fit1_correlations))
+    plot(fit1_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params1))
+    grid()
+    
+    fit2_correlations = arima(TotalRevenue_, xreg = GrossProf_, order = c(vec_order))
+    params2 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(GrossProfit($))&quot;)
+    print(fit2_correlations)
+    print(coeftest(fit2_correlations))
+    plot(fit2_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params2))
+    grid()
+  }
+  else if (company == &quot;BirkShire Heatherway&quot;)
+  {
+    fit1_correlations = arima(TotalRevenue_, xreg = CostOfRev_, order = c(vec_order))
+    params1 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(CostOfRevenue($))&quot;)
+    print(fit1_correlations)
+    print(coeftest(fit1_correlations))
+    plot(fit1_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params1))
+    grid()
+    
+    fit2_correlations = arima(TotalRevenue_, xreg = GrossProf_, order = c(vec_order))
+    params2 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(GrossProfit($))&quot;)
+    print(fit2_correlations)
+    print(coeftest(fit2_correlations))
+    plot(fit2_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params2))
+    grid()
+  }
+  else if (company == &quot;Alphabet Inc.&quot;)
+  {
+    fit1_correlations = arima(TotalRevenue_, xreg = CostOfRev_, order = c(vec_order))
+    params1 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(CostOfRevenue($))&quot;)
+    print(fit1_correlations)
+    print(coeftest(fit1_correlations))
+    plot(fit1_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params1))
+    grid()
+    
+    fit2_correlations = arima(TotalRevenue_, xreg = GrossProf_, order = c(vec_order))
+    params2 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(GrossProfit($))&quot;)
+    print(fit2_correlations)
+    print(coeftest(fit2_correlations))
+    plot(fit2_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params2))
+    grid()
+  }
+  else if (company == &quot;Applied Materials&quot;)
+  {
+    fit1_correlations = arima(TotalRevenue_, xreg = CostOfRev_, order = c(vec_order))
+    params1 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(CostOfRevenue($))&quot;)
+    print(fit1_correlations)
+    print(coeftest(fit1_correlations))
+    plot(fit1_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params1))
+    grid()
+    
+    fit2_correlations = arima(TotalRevenue_, xreg = GrossProf_, order = c(vec_order))
+    params2 = str_c(&quot;: TotalRevenue($)&quot;, &quot;-xreg(GrossProfit($))&quot;)
+    print(fit2_correlations)
+    print(coeftest(fit2_correlations))
+    plot(fit2_correlations$residuals, type = &quot;l&quot;, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company,params2))
+    grid()
+  }
+  
+}
+method_manual_arimas = function(company, totalRev,costofRev,grossProf, TotalRevenue_, CostOfRev_, GrossProf_)
+{
+  # United Health Group, we have ARIMA(0,2,1) - (Health Industry)
+  if(company == &quot;United Health Group&quot;){
+    # TotalRevenue($)
+    modelfit_UHG_TotalRevenue = arima(TotalRevenue_, order = c(0,2,1)) # TotalRevenue_ is a ts()
+    inidicator = &quot;TotalRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,2,1) *** &quot;)
+    method_cofficients(company,indicator, modelfit_UHG_TotalRevenue)
+    # CostOfRevenue($)
+    modelfit_UHG_CostOfRevenue = arima(CostOfRev_, order = c(0,2,1)) # CostOfRev_ is a ts()
+    inidicator = &quot;CostOfRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,2,1) *** &quot;)
+    method_cofficients(company,indicator, modelfit_UHG_CostOfRevenue) 
+    # GrossProfit($)
+    modelfit_UHG_GrossProfit = arima(GrossProf_, order = c(0,2,1)) # GrossProf_ is a ts()
+    inidicator = &quot;GrossProfit($)&quot;
+    print(&quot; *** Modelfit arima(0,2,1) *** &quot;)
+    method_cofficients(company,indicator, modelfit_UHG_GrossProfit)
+    # here, we autoplot the residuals of our manually fit models
+    print(&quot;*** modelfit_UHG_TotalRevenue *** &quot;)
+    # we plot the manual models&#39; residuals
+    method_plot_modelResiduals(company, modelfit_UHG_TotalRevenue, modelfit_UHG_CostOfRevenue,
+                               modelfit_UHG_GrossProfit)
+    # now, let&#39;s check our Model Residuals
+    method_acf_with_residuals(company, modelfit_UHG_TotalRevenue$residuals, 
+                              modelfit_UHG_CostOfRevenue$residuals, 
+                              modelfit_UHG_GrossProfit$residuals) # for acf(model$residuals)
+    # now, let&#39;s check our Model Residuals, pacf()
+    method_pacf_with_residuals(company, modelfit_UHG_TotalRevenue$residuals, 
+                               modelfit_UHG_CostOfRevenue$residuals, 
+                               modelfit_UHG_GrossProfit$residuals) # for pacf(model$residuals)
+    # let&#39;s do our TotalRevenue($) Model Performance Check
+    print(str_c(company, &quot;: - Manual Model Performance (TotalRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_UHG_TotalRevenue,TotalRevenue_)
+    print(str_c(company, &quot;: - Manual Model Performance (CostOfRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_UHG_CostOfRevenue,CostOfRev_)
+    print(str_c(company, &quot;: - Manual Model Performance (GrossProfit($)&quot;))
+    bactest_modelPerformance(company,modelfit_UHG_GrossProfit,GrossProf_)
+    
+    # let&#39;s run a standard forecast, without a training and testing
+    method_forecast(company, modelfit_UHG_TotalRevenue, modelfit_UHG_CostOfRevenue,
+                    modelfit_UHG_GrossProfit, TotalRevenue_, CostOfRev_, GrossProf_)
+    
+    # now, we do model our correlated time series
+    #vec_order = c(0,2,1)
+    method_param_correlations(company,TotalRevenue_, CostOfRev_,GrossProf_, c(0,2,1))
+  }
+  # ExxonMobil, we have ARIMA(0,1,0) - (Oil&amp;Gas Industry) 
+  else if(company == &quot;ExxonMobil Corp.&quot;)
+  {
+    # TotalRevenue($)
+    modelfit_ExxonMobil_TotalRevenue = arima(TotalRevenue_, order = c(0,1,0)) # TotalRevenue_ is a ts()
+    inidicator = &quot;TotalRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_ExxonMobil_TotalRevenue)
+    # CostOfRevenue($)
+    modelfit_ExxonMobil_CostOfRevenue = arima(CostOfRev_, order = c(0,1,0)) # CostOfRev_ is a ts()
+    inidicator = &quot;CostOfRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_ExxonMobil_CostOfRevenue) 
+    # GrossProfit($)
+    modelfit_ExxonMobil_GrossProfit = arima(GrossProf_, order = c(0,1,0)) # GrossProf_ is a ts()
+    inidicator = &quot;GrossProfit($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_ExxonMobil_GrossProfit)
+    
+    # we plot the manual models&#39; residuals
+    method_plot_modelResiduals(company, modelfit_ExxonMobil_TotalRevenue, modelfit_ExxonMobil_CostOfRevenue,
+                               modelfit_ExxonMobil_GrossProfit)
+    # now, let&#39;s check our Model Residuals, acf()
+    method_acf_with_residuals(company, modelfit_ExxonMobil_TotalRevenue$residuals, 
+                              modelfit_ExxonMobil_CostOfRevenue$residuals, 
+                              modelfit_ExxonMobil_GrossProfit$residuals) # for acf(model$residuals)
+    # now, let&#39;s check our Model Residuals, pacf()
+    method_pacf_with_residuals(company, modelfit_ExxonMobil_TotalRevenue$residuals, 
+                               modelfit_ExxonMobil_CostOfRevenue$residuals, 
+                               modelfit_ExxonMobil_GrossProfit$residuals) # for pacf(model$residuals)
+    # let&#39;s do our TotalRevenue($) Model Performance Check
+    print(str_c(company, &quot;: - Manual Model Performance (TotalRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_ExxonMobil_TotalRevenue,TotalRevenue_)
+    print(str_c(company, &quot;: - Manual Model Performance (CostOfRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_ExxonMobil_CostOfRevenue,CostOfRev_)
+    print(str_c(company, &quot;: - Manual Model Performance (GrossProfit($)&quot;))
+    bactest_modelPerformance(company,modelfit_ExxonMobil_GrossProfit,GrossProf_)
+    
+    # let&#39;s run a standard forecast, without a training and testing
+    method_forecast(company, modelfit_ExxonMobil_TotalRevenue, modelfit_ExxonMobil_CostOfRevenue,
+                    modelfit_ExxonMobil_GrossProfit, TotalRevenue_, CostOfRev_, GrossProf_)
+    # now, we do model our correlated time series
+    #vec_order = c(0,1,0)
+    method_param_correlations(company,TotalRevenue_, CostOfRev_,GrossProf_, c(0,1,0))
+  }
+  # BirkShire, we also have ARIMA(0,1,0) - (Insurance Industry) 
+  else if(company == &quot;BirkShire Heatherway&quot;)
+  {
+    # TotalRevenue($)
+    modelfit_BirkShire_TotalRevenue = arima(TotalRevenue_, order = c(0,1,0)) # TotalRevenue_ is a ts()
+    inidicator = &quot;TotalRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_BirkShire_TotalRevenue)
+    # CostOfRevenue($)
+    modelfit_BirkShire_CostOfRevenue = arima(CostOfRev_, order = c(0,1,0)) # CostOfRev_ is a ts()
+    inidicator = &quot;CostOfRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_BirkShire_CostOfRevenue) 
+    # GrossProfit($)
+    modelfit_BirkShire_GrossProfit = arima(GrossProf_, order = c(0,1,0)) # GrossProf_ is a ts()
+    inidicator = &quot;GrossProfit($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_BirkShire_GrossProfit)
+    # we plot the manual models&#39; residuals
+    method_plot_modelResiduals(company, modelfit_BirkShire_TotalRevenue, modelfit_BirkShire_CostOfRevenue,
+                               modelfit_BirkShire_GrossProfit)
+    # now, let&#39;s check our Model Residuals
+    method_acf_with_residuals(company, modelfit_BirkShire_TotalRevenue$residuals, 
+                              modelfit_BirkShire_CostOfRevenue$residuals, 
+                              modelfit_BirkShire_GrossProfit$residuals) # for acf(model$residuals)
+    # now, let&#39;s check our Model Residuals
+    method_pacf_with_residuals(company, modelfit_BirkShire_TotalRevenue$residuals, 
+                               modelfit_BirkShire_CostOfRevenue$residuals, 
+                               modelfit_BirkShire_GrossProfit$residuals) # for pacf(model$residuals)
+    # let&#39;s do our TotalRevenue($) Model Performance Check
+    print(str_c(company, &quot;: - Manual Model Performance (TotalRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_BirkShire_TotalRevenue,TotalRevenue_)
+    print(str_c(company, &quot;: - Manual Model Performance (CostOfRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_BirkShire_CostOfRevenue,CostOfRev_)
+    print(str_c(company, &quot;: - Manual Model Performance (GrossProfit($)&quot;))
+    bactest_modelPerformance(company,modelfit_BirkShire_GrossProfit,GrossProf_)
+    
+    # let&#39;s run a standard forecast, without a training and testing
+    method_forecast(company, modelfit_BirkShire_TotalRevenue, modelfit_BirkShire_CostOfRevenue,
+                    modelfit_BirkShire_GrossProfit, TotalRevenue_, CostOfRev_, GrossProf_)
+    
+    # now, we do model our correlated time series
+    #vec_order = c(0,1,0)
+    method_param_correlations(company,TotalRevenue_, CostOfRev_,GrossProf_, c(0,1,0))
+  }
+  # Alpha, we have ARIMA(1,2,0) - TotalRevenue($),
+  # and ARIMA(0,2,1) - CostOfRevenue, ($),RIMA(0,2,1) - GrossProfit($), - (Tech Industry)
+  else if(company == &quot;Alphabet Inc.&quot;)
+  {
+    # TotalRevenue($)
+    modelfit_Alphabet_TotalRevenue = arima(TotalRevenue_, order = c(1,2,0)) # TotalRevenue_ is a ts()
+    autoplot(modelfit_Alphabet_TotalRevenue$residuals, main = &quot;arima(TotalRevenue_, order = c(1,2,0)&quot;)
+    inidicator = &quot;TotalRevenue($)&quot;
+    print(&quot; *** Modelfit arima(1,2,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_Alphabet_TotalRevenue)
+    # CostOfRevenue($)
+    modelfit_Alphabet_CostOfRevenue = arima(CostOfRev_, order = c(0,2,1)) # CostOfRev_ is a ts()
+    inidicator = &quot;CostOfRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,2,1) *** &quot;)
+    method_cofficients(company,indicator, modelfit_Alphabet_CostOfRevenue) 
+    # GrossProfit($)
+    modelfit_Alphabet_GrossProfit = arima(GrossProf_, order = c(0,2,1)) # GrossProf_ is a ts()
+    inidicator = &quot;GrossProfit($)&quot;
+    print(&quot; *** Modelfit arima(0,2,1) *** &quot;)
+    method_cofficients(company,indicator, modelfit_Alphabet_GrossProfit)
+    # we plot the manual models&#39; residuals
+    method_plot_modelResiduals(company, modelfit_Alphabet_TotalRevenue, modelfit_Alphabet_CostOfRevenue,
+                               modelfit_Alphabet_GrossProfit)
+    # now, let&#39;s check our Model Residuals
+    method_acf_with_residuals(company, modelfit_Alphabet_TotalRevenue$residuals, 
+                              modelfit_Alphabet_CostOfRevenue$residuals, 
+                              modelfit_Alphabet_GrossProfit$residuals) # for acf(model$residuals)
+    # now, let&#39;s check our Model Residuals, pacf
+    method_pacf_with_residuals(company, modelfit_Alphabet_TotalRevenue$residuals, 
+                               modelfit_Alphabet_CostOfRevenue$residuals, 
+                               modelfit_Alphabet_GrossProfit$residuals) # for pacf(model$residuals)
+    # let&#39;s do our TotalRevenue($) Model Performance Check
+    print(str_c(company, &quot;: - Manual Model Performance (TotalRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_Alphabet_TotalRevenue,TotalRevenue_)
+    print(str_c(company, &quot;: - Manual Model Performance (CostOfRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_Alphabet_CostOfRevenue,CostOfRev_)
+    print(str_c(company, &quot;: - Manual Model Performance (GrossProfit($)&quot;))
+    bactest_modelPerformance(company,modelfit_Alphabet_GrossProfit,GrossProf_)
+    
+    # let&#39;s run a standard forecast, without a training and testing
+    method_forecast(company, modelfit_Alphabet_TotalRevenue, modelfit_Alphabet_CostOfRevenue,
+                    modelfit_Alphabet_GrossProfit, TotalRevenue_, CostOfRev_, GrossProf_)
+    # now, we do model our correlated time series
+    #vec_order = c(0,1,0)
+    method_param_correlations(company,TotalRevenue_, CostOfRev_,GrossProf_, c(0,2,1))
+  }
+  # Applied Materials, we ARIMA(0,1,0) - (Tech Industry) 
+  else if(company == &quot;Applied Materials&quot;)
+  {
+    # TotalRevenue($)
+    modelfit_AppliedMaterials_TotalRevenue = arima(TotalRevenue_, order = c(0,1,0)) # TotalRevenue_ is a ts()
+    inidicator = &quot;TotalRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_AppliedMaterials_TotalRevenue)
+    # CostOfRevenue($)
+    modelfit_AppliedMaterials_CostOfRevenue = arima(CostOfRev_, order = c(0,1,0)) # CostOfRev_ is a ts()
+    inidicator = &quot;CostOfRevenue($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_AppliedMaterials_CostOfRevenue) 
+    # GrossProfit($)
+    modelfit_AppliedMaterials_GrossProfit = arima(GrossProf_, order = c(0,1,0)) # GrossProf_ is a ts()
+    inidicator = &quot;GrossProfit($)&quot;
+    print(&quot; *** Modelfit arima(0,1,0) *** &quot;)
+    method_cofficients(company,indicator, modelfit_AppliedMaterials_GrossProfit)
+    # we plot the manual models&#39; residuals
+    method_plot_modelResiduals(company, modelfit_AppliedMaterials_TotalRevenue, 
+                               modelfit_AppliedMaterials_CostOfRevenue,modelfit_AppliedMaterials_GrossProfit)
+    # now, let&#39;s check our Model Residuals, acf()
+    method_acf_with_residuals(company, modelfit_AppliedMaterials_TotalRevenue$residuals, 
+                              modelfit_AppliedMaterials_CostOfRevenue$residuals, 
+                              modelfit_AppliedMaterials_GrossProfit$residuals) # for acf(model$residuals)
+    # now, let&#39;s check our Model Residuals, pacf()
+    method_pacf_with_residuals(company, modelfit_AppliedMaterials_TotalRevenue$residuals, 
+                               modelfit_AppliedMaterials_CostOfRevenue$residuals, 
+                               modelfit_AppliedMaterials_GrossProfit$residuals) # for pacf(model$residuals)
+    # let&#39;s do our TotalRevenue($) Model Performance Check
+    print(str_c(company, &quot;: - Manual Model Performance (TotalRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_AppliedMaterials_TotalRevenue,TotalRevenue_)
+    print(str_c(company, &quot;: - Manual Model Performance (CostOfRevenue($)&quot;))
+    bactest_modelPerformance(company,modelfit_AppliedMaterials_CostOfRevenue,CostOfRev_)
+    print(str_c(company, &quot;: - Manual Model Performance (GrossProfit($)&quot;))
+    bactest_modelPerformance(company,modelfit_AppliedMaterials_GrossProfit,GrossProf_)
+    
+    # let&#39;s run a standard forecast, without a training and testing
+    method_forecast(company, modelfit_AppliedMaterials_TotalRevenue, modelfit_AppliedMaterials_CostOfRevenue,
+                    modelfit_AppliedMaterials_GrossProfit, TotalRevenue_, CostOfRev_, GrossProf_)
+    
+    # now, we do model our correlated time series
+    #vec_order = c(0,1,0)
+    method_param_correlations(company,TotalRevenue_, CostOfRev_,GrossProf_, c(0,1,0))
+  }
+}
+
+# let&#39;s check the make-up of the time series
+method_decompose = function(company, TotalRevenue_, CostOfRev_, GrossProf_)
+{
+  # let&#39;s decompose out time series indicators
+  TotalRevenue_ %&gt;% decompose(type = c(&quot;multiplicative&quot;)) %&gt;% autoplot() + 
+    xlab(&quot;Years&quot;) + ylab(company) + ggtitle(str_c(&quot;Decomposition of: &quot;, &quot;TotalRevenue($)&quot;))
+}
+
+
+# let&#39;s plot our acf, pacf, and eac()&#39;s
+# note: we pass on the data wrangled of the original variables and their time-series&#39;
+summary_TSAnalysis2 = function(company, totalRev,costofRev,grossProf,TotalRevenue_, CostOfRev_, GrossProf_)
+  {
+  
+  # now, given our time-series (TotalRevenue_, CostOfRev_, GrossProf_),
+  #we explore our autocorrelations and partial autocorrelations
+  method_acf(company, TotalRevenue_, CostOfRev_, GrossProf_) # acf()
+  method_pacf(company, TotalRevenue_, CostOfRev_, GrossProf_) # pacf
+  
+  # now, we run an auto.arima(), for indicator-per-company
+  method_auto_arima(company, totalRev,costofRev,grossProf, TotalRevenue_, CostOfRev_, GrossProf_)
+  #now, having tested our auto.arima(), we will use its predictions in our manual models
+  method_manual_arimas(company, totalRev,costofRev,grossProf, TotalRevenue_, CostOfRev_, GrossProf_)
+  
+}
+
+
+# and here, we call our final time series analysis method()
+summary_TSAnalysis1 = function(company,company_revenues){
+  # let&#39;s get the starting and ending years of our Data Records
+  startYear = (company_revenues$Date)[1]
+  years = length(company_revenues$Date)
+  endYear = (company_revenues$Date)[years]
+  
+  # now, verify our years, for each Company
+  #print(paste(&quot;StartYear and EndYear: &quot;, company))
+  #print(paste(&quot;StartYear&quot;, startYear))
+  #print(paste(&quot;EndYear&quot;, endYear))
+  
+  # now, we run our TotalRevenue, CostOfRevenue and GrossProfit 
+  totalRev = as.numeric(company_revenues$TotalRevenue) # convert to numeric
+  costofRev = as.numeric(company_revenues$CostOfRevenue)
+  grossProf = as.numeric(company_revenues$GrossProfit)
+  if (company == &quot;United Health Group&quot;){
+    # run the TotalRevenue time-series
+    UHG_TotalRevenue_ = ts(totalRev, start = c(1985,1), frequency = 12)
+    UHG_CostOfRev_ = ts(costofRev, start = c(1985,1), frequency = 12)
+    UHG_GrossProf_ = ts(grossProf, start = c(1985,1), frequency = 12)
+    # let&#39;s plot our acf, pacf, and eac()&#39;s
+    summary_TSAnalysis2(company, totalRev,costofRev,grossProf, UHG_TotalRevenue_, UHG_CostOfRev_, UHG_GrossProf_)
+  }
+  else if (company == &quot;ExxonMobil Corp.&quot;){
+    # run the TotalRevenue time-series
+    print(paste(&quot;Company: -&quot;, company))
+    Exxon_TotalRevenue_ = ts(totalRev, start = c(1985,1), frequency = 12)
+    Exxon_CostOfRev_ = ts(costofRev, start = c(1985,1), frequency = 12)
+    Exxon_GrossProf_ = ts(grossProf, start = c(1985,1), frequency = 12)
+    # let&#39;s plot our acf, pacf, and eac()&#39;s
+    summary_TSAnalysis2(company, totalRev,costofRev,grossProf, Exxon_TotalRevenue_, Exxon_CostOfRev_, Exxon_GrossProf_)
+  }
+  else if (company == &quot;BirkShire Heatherway&quot;){
+    print(paste(&quot;Company: -&quot;, company))
+    # run the TotalRevenue time-series
+    BirkShire_TotalRevenue_ = ts(totalRev, start = c(1988,1), frequency = 12)
+    BirkShire_CostOfRev_ = ts(costofRev, start = c(1988,1), frequency = 12)
+    BirkShire_GrossProf_ = ts(grossProf, start = c(1988,1), frequency = 12)
+    # let&#39;s plot our acf, pacf, and eac()&#39;s
+    summary_TSAnalysis2(company, totalRev,costofRev,grossProf, BirkShire_TotalRevenue_, BirkShire_CostOfRev_, BirkShire_GrossProf_)
+  }
+  else if (company == &quot;Alphabet Inc.&quot;){
+    print(paste(&quot;Company: -&quot;, company))
+    Alphabet_TotalRevenue_ = ts(totalRev, start = c(2000,1), frequency = 12)
+    Alphabet_CostOfRev_ = ts(costofRev, start = c(2000,1), frequency = 12)
+    Alphabet_GrossProf_ = ts(grossProf, start = c(2000,1), frequency = 12)
+    # let&#39;s plot our acf, pacf, and eac()&#39;s
+    summary_TSAnalysis2(company, totalRev,costofRev,grossProf, Alphabet_TotalRevenue_, Alphabet_CostOfRev_, Alphabet_GrossProf_)
+  }
+  else if (company == &quot;Applied Materials&quot;){
+    print(paste(&quot;Company: -&quot;, company))
+    AppliedMaterials_TotalRevenue_ = ts(totalRev, start = c(1985,10), frequency = 12)
+    AppliedMaterials_CostOfRev_ = ts(costofRev, start = c(1985,10), frequency = 12)
+    AppliedMaterials_GrossProf_ = ts(grossProf, start = c(1985,10), frequency = 12)
+    # let&#39;s plot our acf, pacf, and eac()&#39;s
+    summary_TSAnalysis2(company, totalRev,costofRev,grossProf, AppliedMaterials_TotalRevenue_, AppliedMaterials_CostOfRev_, AppliedMaterials_GrossProf_)
+  }
+}
+
+# here, we plot the time series for each tracked indicator 
+Company_TStrackerPlots = function(company,TotalRevenue_TStracker,CostOfRevenue_TStracker,GrossProfit_TStracker){
+  # plot one tracker at a time
+  plot(company_revenues$Date, company_revenues$TotalRevenue, type = &quot;l&quot;, col = 12, pch = 19, lwd=2.0, xlab = &quot;Years&quot;, ylab = &quot;TotalRevenue ($)&quot;, main = str_c(company, &quot; TotalRevenue ($)&quot;))
+  legend(&quot;topright&quot;, c(&quot;TotalRevenue($)&quot;), lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  # plot one tracker at a time
+  plot(company_revenues$Date, company_revenues$CostOfRevenue, type = &quot;l&quot;, col = &quot;blue&quot;, pch = 19, lwd=2.0, xlab = &quot;Years&quot;, ylab = &quot;CostOfRevenue ($)&quot;, main = str_c(company, &quot; CostOfRevenue ($)&quot;))
+  legend(&quot;topright&quot;, c(&quot;CosOfRevenue($)&quot;), lty = 1, col = &quot;blue&quot;, pch = 19, lwd=2.0)
+  grid()
+  # plot one tracker at a time
+  plot(company_revenues$Date, company_revenues$GrossProfit, type = &quot;l&quot;, col = 14, pch = 19,  lwd=2.0, xlab = &quot;Years&quot;, ylab = &quot;GrossProfit ($)&quot;, main = str_c(company, &quot; GrossProfit ($)&quot;))
+  legend(&quot;topright&quot;, c(&quot;GrossProfit($)&quot;), lty = 1, col = 14, pch = 19, lwd=2.0)
+  grid()
+}
+
+
+# here, we run our time-series plots
+time_plot = function(company, company_revenues){
+  # line plots of our series
+  plot(company_revenues$Date, company_revenues$TotalRevenue, type = &quot;l&quot;, col = 12, pch = 19, lwd=2.0, xlab = &quot;Years&quot;, ylab = &quot;($)&quot;, main = str_c(company))
+  lines(company_revenues$Date, company_revenues$CostOfRevenue, type = &quot;l&quot;, col = 13, pch = 19, lwd=2.0)
+  lines(company_revenues$Date, company_revenues$GrossProfit, type = &quot;l&quot;, col = 14, pch = 19, lwd=2.0)
+  legend(&quot;topright&quot;, c(&quot;TotalRevenue&quot;, &quot;CostOfRevenue&quot;, &quot;GrossProfit&quot;), lty = 1, col = 12:14, pch = 19, lwd=2.0)
+  grid()
+  
+  # let&#39;s run the single tracker time series, and Time Series Models Analysis
+  if(company == &quot;United Health Group&quot;){
+    # UHG Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    summary_TSAnalysis1(company,company_revenues)
+  }
+  else if (company == &quot;ExxonMobil Corp.&quot;){
+    # ExxonMobil Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    summary_TSAnalysis1(company,company_revenues)
+  }
+  else if (company == &quot;BirkShire Heatherway&quot;){
+    # BirkShire Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    summary_TSAnalysis1(company,company_revenues)
+  }
+  else if (company == &quot;Alphabet Inc.&quot;){
+    # Alphabet Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    summary_TSAnalysis1(company,company_revenues)
+  }
+  else if (company == &quot;Applied Materials&quot;){
+    # Alphabet Time Series Business Performance
+    Company_TStrackerPlots(company,company_revenues)
+    # and here, we call our final time series analysis method()
+    summary_TSAnalysis1(company,company_revenues)
+  #print(&quot;===========================================================================&quot;)
+  }
+}
+
+# Correlation and Plots on Business Performance
+Company_Corrs_Plots = function(company,company_revenues, numeric_TotalRevenue,numeric_CostOfRevenue,numeric_GrossProfit){
+  
+  # let&#39;s run correlations for UHG, ExxonMobil, BirkShire and Alphabet
+  TotalRevenue_Corrtracker_CostOfRevenue = cor(numeric_TotalRevenue, numeric_CostOfRevenue)
+  print(paste(&quot;TotalRevenue &lt;---&gt; CostOfRevenue Correlation = &quot;, TotalRevenue_Corrtracker_CostOfRevenue))
+  TotalRevenue_Corrtracker_GrossProfit = cor(numeric_TotalRevenue, numeric_GrossProfit)
+  print(paste(&quot;TotalRevenue&lt;---&gt;GrossProfit Correlation = &quot;, TotalRevenue_Corrtracker_GrossProfit))
+  # now, CostOfRevenue:GrossProfit Correlations
+  CostOfRevenue_GrossProfit_Corrtracker = cor(numeric_CostOfRevenue, numeric_GrossProfit)
+  print(paste(&quot;CostOfRevenue&lt;---&gt;GrossProfit Correlation = &quot;, CostOfRevenue_GrossProfit_Corrtracker))
+  
+  # title = str_c(round(TotalRevenue_Corrtracker_CostOfRevenue,4), &quot; (TotalRevenue($) vs. CostOfRevenue($))&quot;)
+  if((company == &quot;United Health Group&quot;) | (company == &quot;ExxonMobil Corp.&quot;) | (company == &quot;Alphabet Inc.&quot;) | (company == &quot;Applied Materials&quot;)){
+    # plot the TotalRevenue &lt;---&gt; CostOfRevenue Correlation plot
+    plot(numeric_CostOfRevenue, numeric_TotalRevenue, col = &quot;green&quot;, pch = 19, bty = &quot;n&quot;, xlab = &quot;CostOfRevenue ($)&quot;,
+         ylab = &quot;TotalRevenue($) vs. CostOfRevenue($)&quot;, main = str_c(company, &quot;:- TotalRevenu($) vs. CostOfRevenue($)&quot;))
+    mtext(str_c(&quot;correlation = &quot;, TotalRevenue_Corrtracker_CostOfRevenue), side=3)
+    grid()
+    # plot the TotalRevenue &lt;---&gt; GrossProfit Correlation plot
+    plot(numeric_GrossProfit, numeric_TotalRevenue, col = &quot;blue&quot;, pch = 19, bty = &quot;n&quot;, xlab = &quot;GrossProfit ($)&quot;,
+         ylab = &quot;TotalRevenue($) vs. GrossProfit($)&quot;, main = str_c(company, &quot;:- TotalRevenu($) vs. GrossProfit($)&quot;))
+    mtext(str_c(&quot;correlation = &quot;, TotalRevenue_Corrtracker_GrossProfit), side=3)
+    grid()
+    # plot the TotalRevenue &lt;---&gt; GrossProfit Correlation plot
+    plot(numeric_CostOfRevenue, numeric_GrossProfit, col = &quot;violet&quot;, pch = 19, bty = &quot;n&quot;, xlab = &quot;CostOfRevenue ($)&quot;,
+         ylab = &quot;CostOfRevenue($) vs. GrossProfit($)&quot;, main = str_c(company, &quot;:- CostOfRevenue($) vs. GrossProfit($)&quot;))
+    mtext(str_c(&quot;correlation = &quot;, CostOfRevenue_GrossProfit_Corrtracker), side=3)
+    grid()
+  }
+  #  ****************** For now: BirkShire addressed separately because of its NA&#39; values!
+  else if (company == &quot;BirkShire Heatherway&quot;){
+    # plot the TotalRevenue &lt;---&gt; CostOfRevenue Correlation plot
+    plot(numeric_CostOfRevenue, numeric_TotalRevenue, col = &quot;green&quot;, pch = 19, bty = &quot;n&quot;, xlab = &quot;CostOfRevenue ($)&quot;,
+         ylab = &quot;TotalRevenue($) vs. CostOfRevenue($)&quot;, main = str_c(company, &quot;:- TotalRevenu($) vs. CostOfRevenue($)&quot;))
+    mtext(str_c(&quot;correlation = &quot;, TotalRevenue_Corrtracker_CostOfRevenue), side=3)
+    grid()
+    # plot the TotalRevenue &lt;---&gt; GrossProfit Correlation plot
+    plot(numeric_GrossProfit, numeric_TotalRevenue, col = &quot;blue&quot;, pch = 19, bty = &quot;n&quot;, xlab = &quot;GrossProfit ($)&quot;,
+         ylab = &quot;TotalRevenue($) vs. GrossProfit($)&quot;, main = str_c(company, &quot;:- TotalRevenu($) vs. GrossProfit($)&quot;))
+    mtext(str_c(&quot;correlation = &quot;, TotalRevenue_Corrtracker_GrossProfit), side=3)
+    grid()
+    # plot the TotalRevenue &lt;---&gt; GrossProfit Correlation plot
+    plot(numeric_CostOfRevenue, numeric_GrossProfit, col = &quot;violet&quot;, pch = 19, bty = &quot;n&quot;, xlab = &quot;CostOfRevenue ($)&quot;,
+         ylab = &quot;CostOfRevenue($) vs. GrossProfit($)&quot;, main = str_c(company, &quot;:- CostOfRevenue($) vs. GrossProfit($)&quot;))
+    mtext(str_c(&quot;correlation = &quot;, CostOfRevenue_GrossProfit_Corrtracker), side=3)
+    grid()
+  }
+}
+
+# here, we check for the correlation between our Tracked indicators
+Correlation_Business_Performance = function(company, company_revenues){
+  
+  # here, we impute all missing values with respective column means
+  company_revenues$TotalRevenue[is.na(company_revenues$TotalRevenue)]&lt;-mean(as.numeric(company_revenues$TotalRevenue),na.rm=TRUE)
+  company_revenues$CostOfRevenue[is.na(company_revenues$CostOfRevenue)]&lt;-mean(as.numeric(company_revenues$CostOfRevenue),na.rm=TRUE)
+  company_revenues$GrossProfit[is.na(company_revenues$GrossProfit)]&lt;-mean(as.numeric(company_revenues$GrossProfit),na.rm=TRUE)
+  
+  # let&#39;s convert our strings to numbers
+  numeric_TotalRevenue = as.numeric(company_revenues$TotalRevenue)
+  numeric_CostOfRevenue = as.numeric(company_revenues$CostOfRevenue)
+  numeric_GrossProfit = as.numeric(company_revenues$GrossProfit)
+  if(company == &quot;United Health Group&quot;){
+    # let&#39;s run correlations for UHG
+    print(paste(&quot;Correlations: &quot;, company))
+    # UHG Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_CostOfRevenue,numeric_GrossProfit)
+  }
+  else if (company == &quot;ExxonMobil Corp.&quot;){
+    # let&#39;s run correlations for UHG
+    print(paste(&quot;Correlations: &quot;, company))
+    # UHG Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_CostOfRevenue,numeric_GrossProfit)
+  }
+  else if (company == &quot;BirkShire Heatherway&quot;){
+    
+    # let&#39;s run correlations for UHG
+    print(paste(&quot;Correlations: &quot;, company))
+    # UHG Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_CostOfRevenue,numeric_GrossProfit)
+  }
+  else if (company == &quot;Alphabet Inc.&quot;){
+    # let&#39;s run correlations for UHG
+    print(paste(&quot;Correlations: &quot;, company))
+    # UHG Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_CostOfRevenue,numeric_GrossProfit)
+  }
+  else if (company == &quot;Applied Materials&quot;){
+    # let&#39;s run correlations for UHG
+    print(paste(&quot;Correlations: &quot;, company))
+    # UHG Correlation Business Performance
+    Company_Corrs_Plots(company,company_revenues, numeric_TotalRevenue,numeric_CostOfRevenue,numeric_GrossProfit)
+  }
+  #print(&quot;----------------------------------------&quot;)
+}
+
+# here, we display our current Business Performance
+current_Business_Performance = function(company, company_revenues){
+  # we take a peak at UHG Raw Business Performance
+  if(company == &quot;United Health Group&quot;){
+    # we take a peak at United Raw Business Performance
+    UHG_Performance = company_revenues
+    View(UHG_Performance)
+  }
+  else if (company == &quot;ExxonMobil Corp.&quot;){
+    # we take a peak at ExxonMobil Raw Business Performance
+    ExxonMobil_Performance = company_revenues
+    View(ExxonMobil_Performance)
+  }
+  else if (company == &quot;BirkShire Heatherway&quot;){
+    # we take a peak at BirkShire Raw Business Performance
+    BirkShire_Performance = company_revenues
+    View(BirkShire_Performance)
+  }
+  else if (company == &quot;Alphabet Inc.&quot;){
+    # we take a peak at Alphabet Raw Business Performance
+    Alphabet_Performance = company_revenues
+    View(Alphabet_Performance)
+  }
+  else if (company == &quot;Applied Materials&quot;){
+    # we take a peak at Applied Raw Business Performance
+    AppliedMaterials_Performance = company_revenues
+    View(AppliedMaterials_Performance)
+  }
+  startYear = (company_revenues$Date)[1] # let&#39;s preview all the Business years
+  print(paste(&quot;company_revenues$Date)[1]&quot;, (company_revenues$Date)[1]))
+  years = length(company_revenues$Date)
+  endYear = (company_revenues$Date)[years]
+  # now, verify our years, for each Company
+  print(paste(&quot;StartYear and EndYear: &quot;, company))
+  print(paste(&quot;StartYear&quot;, startYear))
+  print(paste(&quot;EndYear&quot;, endYear))
+ 
+  # let&#39;s check for our correlations between our Tracked indicators
+  Correlation_Business_Performance(company, company_revenues)
+}
+
+
+
+# now, let&#39;s get all the years of financial records  
+companies = c(&quot;United Health Group&quot;, &quot;ExxonMobil Corp.&quot;, &quot;BirkShire Heatherway&quot;, &quot;Alphabet Inc.&quot;, &quot;Applied Materials&quot;)
+for (company in companies){
+  # call renamed_columns function
+  if (company == &quot;United Health Group&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    #
+    # let&#39;s format our Data record years, from &#39;X12.31.Y&#39; -&gt; &#39;12.31.Y&#39;
+    UHG_Financial_Record_Years = renamed_columns(company, UnitedHealthGroup_TotalRevenue, colnames_UnitedHealth, UnitedHealth_total_columns)
+    # now, let&#39;s combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,UHG_Financial_Record_Years, UnitedHealthGroup_TotalRevenue, 
+                                       UnitedHealthGroup_CostOfRevenue, UnitedHealthGroup_GrossProfit)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let&#39;s call our time series plot function
+    time_plot(company, company_revenues)
+  }
+  else if (company == &quot;ExxonMobil Corp.&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # let&#39;s format our Data record years, from &#39;X12.31.Y&#39; -&gt; &#39;12.31.Y&#39;
+    ExxonMobil_Financial_Record_Years = renamed_columns(company, ExxonMobil_TotalRevenue, colnames_ExxonMobil, ExxonMobil_total_columns)
+    # now, let&#39;s combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,ExxonMobil_Financial_Record_Years, ExxonMobil_TotalRevenue, 
+                                       ExxonMobil_CostOfRevenue, ExxonMobil_GrossProfit)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let&#39;s call our time series plot function
+    time_plot(company, company_revenues)
+  }
+  else if (company == &quot;BirkShire Heatherway&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # let&#39;s format our Data record years, from &#39;X12.31.Y&#39; -&gt; &#39;12.31.Y&#39;
+    BirkShire_Financial_Record_Years = renamed_columns(company, BirkShire_TotalRevenue, colnames_BirkShire, BirkShire_total_columns)
+    # now, let&#39;s combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,BirkShire_Financial_Record_Years, BirkShire_TotalRevenue, 
+                                       BirkShire_CostOfRevenue, BirkShire_GrossProfit)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let&#39;s call our time series plot function
+    #time_plot(company, company_revenues)
+  }
+  else if (company == &quot;Alphabet Inc.&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # let&#39;s format our Data record years, from &#39;X12.31.Y&#39; -&gt; &#39;12.31.Y&#39;
+    Alphabet_Financial_Record_Years = renamed_columns(company, Alphabet_TotalRevenue, colnames_Alphabet, Alphabet_total_columns)
+    # now, let&#39;s combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,Alphabet_Financial_Record_Years, Alphabet_TotalRevenue, 
+                                       Alphabet_CostOfRevenue, Alphabet_GrossProfit)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let&#39;s call our time series plot function
+    time_plot(company, company_revenues)
+  }
+  else if (company == &quot;Applied Materials&quot;){
+    print(paste(&quot;Company = &quot;, company))
+    # let&#39;s format our Data record years, from &#39;X10.31.Y&#39; -&gt; &#39;10.31.Y&#39;
+    AppliedMaterials_Financial_Record_Years = renamed_columns(company, AppliedMaterials_TotalRevenue, colnames_AppliedMaterials, AppliedMaterials_total_columns)
+    # now, let&#39;s combine our transformed Financial Record year and Financials($$$) for Time-Series Analysis
+    company_revenues = company_records(company,AppliedMaterials_Financial_Record_Years, AppliedMaterials_TotalRevenue, 
+                                       AppliedMaterials_CostOfRevenue, AppliedMaterials_GrossProfit)
+    # here, we display our current Business Performance
+    current_Business_Performance(company, company_revenues)
+    # let&#39;s call our time series plot function
+    time_plot(company, company_revenues)
+  }
+  
+}</code></pre>
+<pre><code>## [1] &quot;Company =  United Health Group&quot;
+## [1] &quot;# of Years of Records:  38&quot;
+## [1] &quot;Last Record Years: 2022-12-31&quot;
+## [1] &quot;1st Year Financials Recorded: 1985-12-31 18:00:00&quot;
+## [1] &quot;Years of Revenue =  38&quot;
+## [1] &quot;Revenue Records =  38&quot;
+## [1] &quot;Our corresponding records match in length&quot;
+## [1] &quot;Company Performance:  United Health Group&quot;
+##         Date TotalRevenue CostOfRevenue GrossProfit
+## 1 1985-12-31    101200000      52200000     4.9e+07
+## 2 1986-12-31    212900000     123100000    89800000
+## 3 1987-12-31    435400000     298500000   136900000
+## 4 1988-12-31    433900000     304700000   129200000
+## 5 1989-12-31     4.12e+08     243600000   168400000
+## 6 1990-12-31    605500000     383700000   221800000
+## [1] &quot;company_revenues$Date)[1] 1985-12-31&quot;
+## [1] &quot;StartYear and EndYear:  United Health Group&quot;
+## [1] &quot;StartYear 1985-12-31&quot;
+## [1] &quot;EndYear 2022-12-31&quot;
+## [1] &quot;Correlations:  United Health Group&quot;
+## [1] &quot;TotalRevenue &lt;---&gt; CostOfRevenue Correlation =  0.998376407868267&quot;
+## [1] &quot;TotalRevenue&lt;---&gt;GrossProfit Correlation =  0.983447617958157&quot;
+## [1] &quot;CostOfRevenue&lt;---&gt;GrossProfit Correlation =  0.971529996238737&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: TotalRevenue_ 
+## ARIMA(0,2,1) 
+## 
+## Coefficients:
+##           ma1
+##       -0.4841
+## s.e.   0.1887
+## 
+## sigma^2 = 4.272e+19:  log likelihood = -864.33
+## AIC=1732.66   AICc=1733.02   BIC=1735.82
+##        ma1 
+## -0.4841441 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 16.955, df = 15, p-value = 0.3216</code></pre>
+<pre><code>## Warning in adf.test(modelfit_indicator$residuals): p-value smaller than printed p-value</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.05014, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: CostOfRev_ 
+## ARIMA(0,2,1) 
+## 
+## Coefficients:
+##           ma1
+##       -0.7025
+## s.e.   0.1244
+## 
+## sigma^2 = 5.411e+19:  log likelihood = -868.79
+## AIC=1741.58   AICc=1741.94   BIC=1744.75
+##        ma1 
+## -0.7025225 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 11.995, df = 15, p-value = 0.6794</code></pre>
+<pre><code>## Warning in adf.test(modelfit_indicator$residuals): p-value smaller than printed p-value
+
+## Warning in adf.test(modelfit_indicator$residuals): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.045095, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: GrossProf_ 
+## ARIMA(0,2,1) 
+## 
+## Coefficients:
+##           ma1
+##       -0.8344
+## s.e.   0.0863
+## 
+## sigma^2 = 1.9e+19:  log likelihood = -850.21
+## AIC=1704.42   AICc=1704.78   BIC=1707.58
+##        ma1 
+## -0.8343869 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 28.583, df = 15, p-value = 0.01819</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.047666, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,2,1) *** &quot;
+## 
+## Call:
+## arima(x = TotalRevenue_, order = c(0, 2, 1))
+## 
+## Coefficients:
+##           ma1
+##       -0.4841
+## s.e.   0.1887
+## 
+## sigma^2 estimated as 4.153e+19:  log likelihood = -864.33,  aic = 1732.66
+##        ma1 
+## -0.4841441 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 16.955, df = 15, p-value = 0.3216</code></pre>
+<pre><code>## Warning in adf.test(modelfit_indicator$residuals): p-value smaller than printed p-value
+
+## Warning in adf.test(modelfit_indicator$residuals): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.05014, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,2,1) *** &quot;
+## 
+## Call:
+## arima(x = CostOfRev_, order = c(0, 2, 1))
+## 
+## Coefficients:
+##           ma1
+##       -0.7025
+## s.e.   0.1244
+## 
+## sigma^2 estimated as 5.26e+19:  log likelihood = -868.79,  aic = 1741.58
+##        ma1 
+## -0.7025225 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 11.995, df = 15, p-value = 0.6794</code></pre>
+<pre><code>## Warning in adf.test(modelfit_indicator$residuals): p-value smaller than printed p-value
+
+## Warning in adf.test(modelfit_indicator$residuals): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.045095, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,2,1) *** &quot;
+## 
+## Call:
+## arima(x = GrossProf_, order = c(0, 2, 1))
+## 
+## Coefficients:
+##           ma1
+##       -0.8344
+## s.e.   0.0863
+## 
+## sigma^2 estimated as 1.847e+19:  log likelihood = -850.21,  aic = 1704.42
+##        ma1 
+## -0.8343869 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 28.583, df = 15, p-value = 0.01819</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.047666, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot;*** modelfit_UHG_TotalRevenue *** &quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;United Health Group: - Manual Model Performance (TotalRevenue($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 10601100812
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 9509562895
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.04752606
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.04887966
+## $origin
+## [1] 30.4
+## 
+## $obs
+##             [,1]
+## [1,] 1.56397e+11
+## [2,] 1.84000e+11
+## [3,] 2.00136e+11
+## [4,] 2.24871e+11
+## [5,] 2.40269e+11
+## [6,] 2.55639e+11
+## [7,] 2.85273e+11
+## 
+## $error
+##             [,1]
+## [1,] 18059881704
+## [2,] 12553969542
+## [3,] -8103296407
+## [4,]  5456144682
+## [5,] -6562129873
+## [6,] -3493715803
+## [7,] 12337802255
+## 
+## $forecast
+##              [,1]
+## [1,] 138337118296
+## [2,] 171446030458
+## [3,] 208239296407
+## [4,] 219414855318
+## [5,] 246831129873
+## [6,] 259132715803
+## [7,] 272935197745
+## 
+## $rmse
+## [1] 10601100812
+## 
+## $mabso
+## [1] 9509562895
+## 
+## $mape
+## [1] 0.04752606
+## 
+## [1] &quot;United Health Group: - Manual Model Performance (CostOfRevenue($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 11081356079
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 9087058731
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.05792255
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.06061164
+## $origin
+## [1] 30.4
+## 
+## $obs
+##             [,1]
+## [1,] 1.20081e+11
+## [2,] 1.41454e+11
+## [3,] 1.54148e+11
+## [4,] 1.72401e+11
+## [5,] 1.84557e+11
+## [6,] 1.90141e+11
+## [7,] 2.17945e+11
+## 
+## $error
+##             [,1]
+## [1,] 17894588040
+## [2,] 12961723062
+## [3,]    31000281
+## [4,]  5599402349
+## [5,] -2601641836
+## [6,] -8223899764
+## [7,] 16297155785
+## 
+## $forecast
+##              [,1]
+## [1,] 102186411960
+## [2,] 128492276938
+## [3,] 154116999719
+## [4,] 166801597651
+## [5,] 187158641836
+## [6,] 198364899764
+## [7,] 201647844215
+## 
+## $rmse
+## [1] 11081356079
+## 
+## $mabso
+## [1] 9087058731
+## 
+## $mape
+## [1] 0.05792255
+## 
+## [1] &quot;United Health Group: - Manual Model Performance (GrossProfit($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 3493770651
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 2917497439
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.05602487
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.05799288
+## $origin
+## [1] 30.4
+## 
+## $obs
+##            [,1]
+## [1,] 3.6316e+10
+## [2,] 4.2546e+10
+## [3,] 4.5988e+10
+## [4,] 5.2470e+10
+## [5,] 5.5712e+10
+## [6,] 6.5498e+10
+## [7,] 6.7328e+10
+## 
+## $error
+##             [,1]
+## [1,]  2172210688
+## [2,]  4353262774
+## [3,]   683564904
+## [4,]  3607255563
+## [5,]  -369954445
+## [6,]  6277214651
+## [7,] -2959019048
+## 
+## $forecast
+##             [,1]
+## [1,] 34143789312
+## [2,] 38192737226
+## [3,] 45304435096
+## [4,] 48862744437
+## [5,] 56081954445
+## [6,] 59220785349
+## [7,] 70287019048
+## 
+## $rmse
+## [1] 3493770651
+## 
+## $mabso
+## [1] 2917497439
+## 
+## $mape
+## [1] 0.05602487</code></pre>
+<pre><code>## Warning in forecast.Arima(modelfit_TotalRevenue, h = 10, include = data_TotalRev): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## Warning in forecast.Arima(modelfit_CostOfRevenue, h = 10, include = data_CostOfRev): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## Warning in forecast.Arima(modelfit_GrossProfit, h = 10, include = data_GrossProf): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## 
+## Call:
+## arima(x = TotalRevenue_, order = c(vec_order), xreg = CostOfRev_)
+## 
+## Coefficients:
+##           ma1  CostOfRev_
+##       -0.6555      0.7129
+## s.e.   0.1465      0.1012
+## 
+## sigma^2 estimated as 1.562e+19:  log likelihood = -846.87,  aic = 1699.74
+## 
+## z test of coefficients:
+## 
+##            Estimate Std. Error z value  Pr(&gt;|z|)    
+## ma1        -0.65547    0.14653 -4.4732 7.704e-06 ***
+## CostOfRev_  0.71292    0.10118  7.0459 1.843e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## 
+## Call:
+## arima(x = TotalRevenue_, order = c(vec_order), xreg = GrossProf_)
+## 
+## Coefficients:
+##           ma1  GrossProf_
+##       -0.5127      0.1828
+## s.e.   0.1866      0.2351
+## 
+## sigma^2 estimated as 4.079e+19:  log likelihood = -864.02,  aic = 1734.05
+## 
+## z test of coefficients:
+## 
+##            Estimate Std. Error z value Pr(&gt;|z|)   
+## ma1        -0.51274    0.18656 -2.7484 0.005989 **
+## GrossProf_  0.18278    0.23510  0.7774 0.436904   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Company =  ExxonMobil Corp.&quot;
+## [1] &quot;# of Years of Records:  38&quot;
+## [1] &quot;Last Record Years: 2022-12-31&quot;
+## [1] &quot;1st Year Financials Recorded: 1985-12-31 18:00:00&quot;
+## [1] &quot;Years of Revenue =  38&quot;
+## [1] &quot;Revenue Records =  38&quot;
+## [1] &quot;Our corresponding records match in length&quot;
+## [1] &quot;Company Performance:  ExxonMobil Corp.&quot;
+##         Date TotalRevenue CostOfRevenue GrossProfit
+## 1 1985-12-31   8.6673e+10    5.5733e+10   3.094e+10
+## 2 1986-12-31   6.9888e+10    3.9316e+10  3.0572e+10
+## 3 1987-12-31   7.6416e+10    4.4429e+10  3.1987e+10
+## 4 1988-12-31   7.9557e+10    4.4505e+10  3.5052e+10
+## 5 1989-12-31   8.6656e+10    5.0675e+10  3.5981e+10
+## 6 1990-12-31  1.05519e+11    6.3698e+10  4.1821e+10
+## [1] &quot;company_revenues$Date)[1] 1985-12-31&quot;
+## [1] &quot;StartYear and EndYear:  ExxonMobil Corp.&quot;
+## [1] &quot;StartYear 1985-12-31&quot;
+## [1] &quot;EndYear 2022-12-31&quot;
+## [1] &quot;Correlations:  ExxonMobil Corp.&quot;
+## [1] &quot;TotalRevenue &lt;---&gt; CostOfRevenue Correlation =  0.802985156652346&quot;
+## [1] &quot;TotalRevenue&lt;---&gt;GrossProfit Correlation =  0.67911883585825&quot;
+## [1] &quot;CostOfRevenue&lt;---&gt;GrossProfit Correlation =  0.108910195451942&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Company: - ExxonMobil Corp.&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: TotalRevenue_ 
+## ARIMA(0,1,0) 
+## 
+## sigma^2 = 3.589e+21:  log likelihood = -970.7
+## AIC=1943.39   AICc=1943.51   BIC=1945
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 19.597, df = 15, p-value = 0.1879</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.080557, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: CostOfRev_ 
+## ARIMA(0,1,0) 
+## 
+## sigma^2 = 6.588e+21:  log likelihood = -981.93
+## AIC=1965.86   AICc=1965.98   BIC=1967.47
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 20.394, df = 15, p-value = 0.1573</code></pre>
+<pre><code>## Warning in adf.test(modelfit_indicator$residuals): p-value smaller than printed p-value
+
+## Warning in adf.test(modelfit_indicator$residuals): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.061212, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: GrossProf_ 
+## ARIMA(0,1,0) 
+## 
+## sigma^2 = 8.315e+21:  log likelihood = -986.24
+## AIC=1974.48   AICc=1974.59   BIC=1976.09
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 12.568, df = 15, p-value = 0.6357</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.062168, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,1,0) *** &quot;
+## 
+## Call:
+## arima(x = TotalRevenue_, order = c(0, 1, 0))
+## 
+## 
+## sigma^2 estimated as 3.589e+21:  log likelihood = -970.7,  aic = 1943.39
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 19.597, df = 15, p-value = 0.1879</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.080557, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,1,0) *** &quot;
+## 
+## Call:
+## arima(x = CostOfRev_, order = c(0, 1, 0))
+## 
+## 
+## sigma^2 estimated as 6.588e+21:  log likelihood = -981.93,  aic = 1965.86
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 20.394, df = 15, p-value = 0.1573</code></pre>
+<pre><code>## Warning in adf.test(modelfit_indicator$residuals): p-value smaller than printed p-value
+
+## Warning in adf.test(modelfit_indicator$residuals): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.061212, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,1,0) *** &quot;
+## 
+## Call:
+## arima(x = GrossProf_, order = c(0, 1, 0))
+## 
+## 
+## sigma^2 estimated as 8.315e+21:  log likelihood = -986.24,  aic = 1974.48
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 12.568, df = 15, p-value = 0.6357</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.062168, Truncation lag parameter = 3, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;ExxonMobil Corp.: - Manual Model Performance (TotalRevenue($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 78991849067
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 66115857143
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.2672042
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.2503993
+## $origin
+## [1] 30.4
+## 
+## $obs
+##             [,1]
+## [1,] 2.68882e+11
+## [2,] 2.26094e+11
+## [3,] 2.37162e+11
+## [4,] 2.90212e+11
+## [5,] 2.64938e+11
+## [6,] 1.81502e+11
+## [7,] 2.85640e+11
+## 
+## $error
+##              [,1]
+## [1,] -1.43057e+11
+## [2,] -4.27880e+10
+## [3,]  1.10680e+10
+## [4,]  5.30500e+10
+## [5,] -2.52740e+10
+## [6,] -8.34360e+10
+## [7,]  1.04138e+11
+## 
+## $forecast
+##             [,1]
+## [1,] 4.11939e+11
+## [2,] 2.68882e+11
+## [3,] 2.26094e+11
+## [4,] 2.37162e+11
+## [5,] 2.90212e+11
+## [6,] 2.64938e+11
+## [7,] 1.81502e+11
+## 
+## $rmse
+## [1] 78991849067
+## 
+## $mabso
+## [1] 66115857143
+## 
+## $mape
+## [1] 0.2672042
+## 
+## [1] &quot;ExxonMobil Corp.: - Manual Model Performance (CostOfRevenue($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 47473568950
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 35512571429
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.1784324
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.1639878
+## $origin
+## [1] 30.4
+## 
+## $obs
+##             [,1]
+## [1,] 2.06316e+11
+## [2,] 1.79496e+11
+## [3,] 1.82238e+11
+## [4,] 2.11599e+11
+## [5,] 1.99625e+11
+## [6,] 1.70447e+11
+## [7,] 2.11806e+11
+## 
+## $error
+##              [,1]
+## [1,] -1.07154e+11
+## [2,] -2.68200e+10
+## [3,]  2.74200e+09
+## [4,]  2.93610e+10
+## [5,] -1.19740e+10
+## [6,] -2.91780e+10
+## [7,]  4.13590e+10
+## 
+## $forecast
+##             [,1]
+## [1,] 3.13470e+11
+## [2,] 2.06316e+11
+## [3,] 1.79496e+11
+## [4,] 1.82238e+11
+## [5,] 2.11599e+11
+## [6,] 1.99625e+11
+## [7,] 1.70447e+11
+## 
+## $rmse
+## [1] 47473568950
+## 
+## $mabso
+## [1] 35512571429
+## 
+## $mape
+## [1] 0.1784324
+## 
+## [1] &quot;ExxonMobil Corp.: - Manual Model Performance (GrossProfit($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 31654449159
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 26644142857
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 1.189085
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.6426069
+## $origin
+## [1] 30.4
+## 
+## $obs
+##            [,1]
+## [1,] 5.3172e+10
+## [2,] 3.9112e+10
+## [3,] 5.4924e+10
+## [4,] 6.7733e+10
+## [5,] 5.5958e+10
+## [6,] 8.1270e+09
+## [7,] 6.4886e+10
+## 
+## $error
+##             [,1]
+## [1,] -2.7463e+10
+## [2,] -1.4060e+10
+## [3,]  1.5812e+10
+## [4,]  1.2809e+10
+## [5,] -1.1775e+10
+## [6,] -4.7831e+10
+## [7,]  5.6759e+10
+## 
+## $forecast
+##            [,1]
+## [1,] 8.0635e+10
+## [2,] 5.3172e+10
+## [3,] 3.9112e+10
+## [4,] 5.4924e+10
+## [5,] 6.7733e+10
+## [6,] 5.5958e+10
+## [7,] 8.1270e+09
+## 
+## $rmse
+## [1] 31654449159
+## 
+## $mabso
+## [1] 26644142857
+## 
+## $mape
+## [1] 1.189085</code></pre>
+<pre><code>## Warning in forecast.Arima(modelfit_TotalRevenue, h = 10, include = data_TotalRev): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## Warning in forecast.Arima(modelfit_CostOfRevenue, h = 10, include = data_CostOfRev): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## Warning in forecast.Arima(modelfit_GrossProfit, h = 10, include = data_GrossProf): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## 
+## Call:
+## arima(x = TotalRevenue_, order = c(vec_order), xreg = CostOfRev_)
+## 
+## Coefficients:
+##       CostOfRev_
+##           0.1383
+## s.e.      0.1192
+## 
+## sigma^2 estimated as 3.463e+21:  log likelihood = -970.03,  aic = 1944.07
+## 
+## z test of coefficients:
+## 
+##            Estimate Std. Error z value Pr(&gt;|z|)
+## CostOfRev_  0.13833    0.11919  1.1606   0.2458</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## 
+## Call:
+## arima(x = TotalRevenue_, order = c(vec_order), xreg = GrossProf_)
+## 
+## Coefficients:
+##       GrossProf_
+##           0.3165
+## s.e.      0.0947
+## 
+## sigma^2 estimated as 2.756e+21:  log likelihood = -965.81,  aic = 1935.62
+## 
+## z test of coefficients:
+## 
+##            Estimate Std. Error z value  Pr(&gt;|z|)    
+## GrossProf_ 0.316516   0.094651   3.344 0.0008257 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Company =  BirkShire Heatherway&quot;
+## [1] &quot;# of Years of Records:  35&quot;
+## [1] &quot;Last Record Years: 2022-12-31&quot;
+## [1] &quot;1st Year Financials Recorded: 1988-12-31 12:00:00&quot;
+## [1] &quot;Years of Revenue =  35&quot;
+## [1] &quot;Revenue Records =  35&quot;
+## [1] &quot;Our corresponding records match in length&quot;
+## [1] &quot;Company Performance:  BirkShire Heatherway&quot;
+##         Date TotalRevenue CostOfRevenue GrossProfit
+## 1 1988-12-31   2464900000    1771021212 32453617857
+## 2 1989-12-31   2483900000    1771021212 32453617857
+## 3 1990-12-31   1580100000     112700000 32453617857
+## 4 1991-12-31   2427500000     121800000   776400000
+## 5 1992-12-31   3029300000     124500000 32453617857
+## 6 1993-12-31   2619200000      80700000 32453617857
+## [1] &quot;company_revenues$Date)[1] 1988-12-31&quot;
+## [1] &quot;StartYear and EndYear:  BirkShire Heatherway&quot;
+## [1] &quot;StartYear 1988-12-31&quot;
+## [1] &quot;EndYear 2022-12-31&quot;
+## [1] &quot;Correlations:  BirkShire Heatherway&quot;
+## [1] &quot;TotalRevenue &lt;---&gt; CostOfRevenue Correlation =  0.921848788071206&quot;
+## [1] &quot;TotalRevenue&lt;---&gt;GrossProfit Correlation =  0.820607758278122&quot;
+## [1] &quot;CostOfRevenue&lt;---&gt;GrossProfit Correlation =  0.846004623870517&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Company =  Alphabet Inc.&quot;
+## [1] &quot;# of Years of Records:  23&quot;
+## [1] &quot;Last Record Years: 2022-12-31&quot;
+## [1] &quot;1st Year Financials Recorded: 2000-12-31 12:00:00&quot;
+## [1] &quot;Years of Revenue =  23&quot;
+## [1] &quot;Revenue Records =  23&quot;
+## [1] &quot;Our corresponding records match in length&quot;
+## [1] &quot;Company Performance:  Alphabet Inc.&quot;
+##         Date TotalRevenue CostOfRevenue GrossProfit
+## 1 2000-12-31     19108000       6081000    13027000
+## 2 2001-12-31     86426000      14228000    72198000
+## 3 2002-12-31    439508000     131510000   307998000
+## 4 2003-12-31   1465934000     625854000   840080000
+## 5 2004-12-31   3189223000    1457653000  1731570000
+## 6 2005-12-31   6138560000    2571509000  3567051000
+## [1] &quot;company_revenues$Date)[1] 2000-12-31&quot;
+## [1] &quot;StartYear and EndYear:  Alphabet Inc.&quot;
+## [1] &quot;StartYear 2000-12-31&quot;
+## [1] &quot;EndYear 2022-12-31&quot;
+## [1] &quot;Correlations:  Alphabet Inc.&quot;
+## [1] &quot;TotalRevenue &lt;---&gt; CostOfRevenue Correlation =  0.998448606539697&quot;
+## [1] &quot;TotalRevenue&lt;---&gt;GrossProfit Correlation =  0.999006887303742&quot;
+## [1] &quot;CostOfRevenue&lt;---&gt;GrossProfit Correlation =  0.994976108140676&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Company: - Alphabet Inc.&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: TotalRevenue_ 
+## ARIMA(1,2,0) 
+## 
+## Coefficients:
+##           ar1
+##       -0.8036
+## s.e.   0.1715
+## 
+## sigma^2 = 1.541e+20:  log likelihood = -517.89
+## AIC=1039.78   AICc=1040.45   BIC=1041.87
+##       ar1 
+## -0.803618 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 3.7412, df = 15, p-value = 0.9985</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.1004, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: CostOfRev_ 
+## ARIMA(0,2,1) 
+## 
+## Coefficients:
+##           ma1
+##       -0.3683
+## s.e.   0.1840
+## 
+## sigma^2 = 1.829e+19:  log likelihood = -495.06
+## AIC=994.12   AICc=994.79   BIC=996.21
+##        ma1 
+## -0.3682762 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 6.7553, df = 15, p-value = 0.9641</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.065513, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: GrossProf_ 
+## ARIMA(0,2,1) 
+## 
+## Coefficients:
+##           ma1
+##       -0.7005
+## s.e.   0.1288
+## 
+## sigma^2 = 8.963e+19:  log likelihood = -512.02
+## AIC=1028.03   AICc=1028.7   BIC=1030.12
+##        ma1 
+## -0.7005377 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 4.6146, df = 15, p-value = 0.9949</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.083452, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(1,2,0) *** &quot;
+## 
+## Call:
+## arima(x = TotalRevenue_, order = c(1, 2, 0))
+## 
+## Coefficients:
+##           ar1
+##       -0.8036
+## s.e.   0.1715
+## 
+## sigma^2 estimated as 1.468e+20:  log likelihood = -517.89,  aic = 1039.78
+##       ar1 
+## -0.803618 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 3.7412, df = 15, p-value = 0.9985</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.1004, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,2,1) *** &quot;
+## 
+## Call:
+## arima(x = CostOfRev_, order = c(0, 2, 1))
+## 
+## Coefficients:
+##           ma1
+##       -0.3683
+## s.e.   0.1840
+## 
+## sigma^2 estimated as 1.742e+19:  log likelihood = -495.06,  aic = 994.12
+##        ma1 
+## -0.3682762 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 6.7553, df = 15, p-value = 0.9641</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.065513, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,2,1) *** &quot;
+## 
+## Call:
+## arima(x = GrossProf_, order = c(0, 2, 1))
+## 
+## Coefficients:
+##           ma1
+##       -0.7005
+## s.e.   0.1288
+## 
+## sigma^2 estimated as 8.537e+19:  log likelihood = -512.02,  aic = 1028.03
+##        ma1 
+## -0.7005377 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 4.6146, df = 15, p-value = 0.9949</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.083452, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Alphabet Inc.: - Manual Model Performance (TotalRevenue($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 28350515396
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 16797328565
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.07159797
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.07825052
+## $origin
+## [1] 18.4
+## 
+## $obs
+##             [,1]
+## [1,] 1.36819e+11
+## [2,] 1.61857e+11
+## [3,] 1.82527e+11
+## [4,] 2.57637e+11
+## 
+## $error
+##             [,1]
+## [1,]  3086014397
+## [2,] -3775553120
+## [3,] -3976948266
+## [4,] 56350798478
+## 
+## $forecast
+##              [,1]
+## [1,] 133732985603
+## [2,] 165632553120
+## [3,] 186503948266
+## [4,] 201286201522
+## 
+## $rmse
+## [1] 28350515396
+## 
+## $mabso
+## [1] 16797328565
+## 
+## $mape
+## [1] 0.07159797
+## 
+## [1] &quot;Alphabet Inc.: - Manual Model Performance (CostOfRevenue($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 6655600175
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 4974672818
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.05433113
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.05610764
+## $origin
+## [1] 18.4
+## 
+## $obs
+##             [,1]
+## [1,] 5.95490e+10
+## [2,] 7.18960e+10
+## [3,] 8.47320e+10
+## [4,] 1.10939e+11
+## 
+## $error
+##             [,1]
+## [1,]  2302662058
+## [2,] -2921356843
+## [3,]  2061046211
+## [4,] 12613626160
+## 
+## $forecast
+##             [,1]
+## [1,] 57246337942
+## [2,] 74817356843
+## [3,] 82670953789
+## [4,] 98325373840
+## 
+## $rmse
+## [1] 6655600175
+## 
+## $mabso
+## [1] 4974672818
+## 
+## $mape
+## [1] 0.05433113
+## 
+## [1] &quot;Alphabet Inc.: - Manual Model Performance (GrossProfit($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 21913643008
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 12497185053
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.09170623
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.1043677
+## $origin
+## [1] 18.4
+## 
+## $obs
+##             [,1]
+## [1,] 7.72700e+10
+## [2,] 8.99610e+10
+## [3,] 9.77950e+10
+## [4,] 1.46698e+11
+## 
+## $error
+##             [,1]
+## [1,]  1452832591
+## [2,]   109370664
+## [3,] -4898202155
+## [4,] 43528334802
+## 
+## $forecast
+##              [,1]
+## [1,]  75817167409
+## [2,]  89851629336
+## [3,] 102693202155
+## [4,] 103169665198
+## 
+## $rmse
+## [1] 21913643008
+## 
+## $mabso
+## [1] 12497185053
+## 
+## $mape
+## [1] 0.09170623</code></pre>
+<pre><code>## Warning in forecast.Arima(modelfit_TotalRevenue, h = 10, include = data_TotalRev): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## Warning in forecast.Arima(modelfit_CostOfRevenue, h = 10, include = data_CostOfRev): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## Warning in forecast.Arima(modelfit_GrossProfit, h = 10, include = data_GrossProf): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## 
+## Call:
+## arima(x = TotalRevenue_, order = c(vec_order), xreg = CostOfRev_)
+## 
+## Coefficients:
+##         ma1  CostOfRev_
+##       -1.00      2.2691
+## s.e.   0.15      0.1635
+## 
+## sigma^2 estimated as 2.619e+19:  log likelihood = -500.82,  aic = 1007.64
+## 
+## z test of coefficients:
+## 
+##            Estimate Std. Error z value  Pr(&gt;|z|)    
+## ma1        -0.99999    0.15004 -6.6649 2.649e-11 ***
+## CostOfRev_  2.26906    0.16351 13.8772 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## 
+## Call:
+## arima(x = TotalRevenue_, order = c(vec_order), xreg = GrossProf_)
+## 
+## Coefficients:
+##          ma1  GrossProf_
+##       0.3606      1.2884
+## s.e.  0.3951      0.0388
+## 
+## sigma^2 estimated as 5.262e+18:  log likelihood = -482.49,  aic = 970.98
+## 
+## z test of coefficients:
+## 
+##            Estimate Std. Error z value Pr(&gt;|z|)    
+## ma1        0.360584   0.395136  0.9126   0.3615    
+## GrossProf_ 1.288426   0.038751 33.2492   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Company =  Applied Materials&quot;
+## [1] &quot;# of Years of Records:  23&quot;
+## [1] &quot;Last Record Years: 2022-10-31&quot;
+## [1] &quot;1st Year Financials Recorded: 2000-10-31 12:00:00&quot;
+## [1] &quot;Years of Revenue =  23&quot;
+## [1] &quot;Revenue Records =  23&quot;
+## [1] &quot;Our corresponding records match in length&quot;
+## [1] &quot;Company Performance:  Applied Materials&quot;
+##         Date TotalRevenue CostOfRevenue GrossProfit
+## 1 2000-10-31   9564412000    4708684000  4855728000
+## 2 2001-10-31   7343248000    4091215000  3252033000
+## 3 2002-10-31   5062312000    3005651000  2056661000
+## 4 2003-10-31   4477291000    2872836000  1604455000
+## 5 2004-10-31   8013063000    4311808000  3701255000
+## 6 2005-10-31   6991823000    3905949000  3085874000
+## [1] &quot;company_revenues$Date)[1] 2000-10-31&quot;
+## [1] &quot;StartYear and EndYear:  Applied Materials&quot;
+## [1] &quot;StartYear 2000-10-31&quot;
+## [1] &quot;EndYear 2022-10-31&quot;
+## [1] &quot;Correlations:  Applied Materials&quot;
+## [1] &quot;TotalRevenue &lt;---&gt; CostOfRevenue Correlation =  0.99486322738064&quot;
+## [1] &quot;TotalRevenue&lt;---&gt;GrossProfit Correlation =  0.994322578189706&quot;
+## [1] &quot;CostOfRevenue&lt;---&gt;GrossProfit Correlation =  0.978443498176314&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Company: - Applied Materials&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: TotalRevenue_ 
+## ARIMA(0,1,0) 
+## 
+## sigma^2 = 6.743e+18:  log likelihood = -508.12
+## AIC=1018.24   AICc=1018.44   BIC=1019.34
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 24.183, df = 15, p-value = 0.06204</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.07965, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: CostOfRev_ 
+## ARIMA(0,1,0) with drift 
+## 
+## Coefficients:
+##           drift
+##       412878000
+## s.e.  250973202
+## 
+## sigma^2 = 1.333e+18:  log likelihood = -489.78
+## AIC=983.56   AICc=984.19   BIC=985.74
+##     drift 
+## 412878000 
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 25.614, df = 15, p-value = 0.04228</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.092082, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit auto.arima() *** &quot;
+## Series: GrossProf_ 
+## ARIMA(0,1,0) 
+## 
+## sigma^2 = 2.025e+18:  log likelihood = -494.89
+## AIC=991.78   AICc=991.98   BIC=992.87
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 23.992, df = 15, p-value = 0.06523</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.072095, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,1,0) *** &quot;
+## 
+## Call:
+## arima(x = TotalRevenue_, order = c(0, 1, 0))
+## 
+## 
+## sigma^2 estimated as 6.743e+18:  log likelihood = -508.12,  aic = 1018.24
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 24.183, df = 15, p-value = 0.06204</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.07965, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,1,0) *** &quot;
+## 
+## Call:
+## arima(x = CostOfRev_, order = c(0, 1, 0))
+## 
+## 
+## sigma^2 estimated as 1.443e+18:  log likelihood = -491.16,  aic = 984.32
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 23.028, df = 15, p-value = 0.08356</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.08737, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;
+## [1] &quot; *** Modelfit arima(0,1,0) *** &quot;
+## 
+## Call:
+## arima(x = GrossProf_, order = c(0, 1, 0))
+## 
+## 
+## sigma^2 estimated as 2.025e+18:  log likelihood = -494.89,  aic = 991.78
+## numeric(0)
+## [1] &quot;Checking for Stationarity and White Noise&quot;
+## 
+##  Box-Ljung test
+## 
+## data:  modelfit_indicator$residuals
+## X-squared = 23.992, df = 15, p-value = 0.06523</code></pre>
+<pre><code>## Warning in kpss.test(modelfit_indicator$residuals, null = &quot;Trend&quot;): p-value greater than printed p-value</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## 
+##  KPSS Test for Trend Stationarity
+## 
+## data:  modelfit_indicator$residuals
+## KPSS Trend = 0.072095, Truncation lag parameter = 2, p-value = 0.1
+## 
+## [1] &quot;-----------------------------------------------&quot;</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## [1] &quot;Applied Materials: - Manual Model Performance (TotalRevenue($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 3723333117
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 3.454e+09
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.1858534
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.1977799
+## $origin
+## [1] 18.4
+## 
+## $obs
+##            [,1]
+## [1,] 1.7253e+10
+## [2,] 1.4608e+10
+## [3,] 1.7202e+10
+## [4,] 2.3063e+10
+## 
+## $error
+##            [,1]
+## [1,]  2.716e+09
+## [2,] -2.645e+09
+## [3,]  2.594e+09
+## [4,]  5.861e+09
+## 
+## $forecast
+##            [,1]
+## [1,] 1.4537e+10
+## [2,] 1.7253e+10
+## [3,] 1.4608e+10
+## [4,] 1.7202e+10
+## 
+## $rmse
+## [1] 3723333117
+## 
+## $mabso
+## [1] 3.454e+09
+## 
+## $mape
+## [1] 0.1858534
+## 
+## [1] &quot;Applied Materials: - Manual Model Performance (CostOfRevenue($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 1742471090
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 1.643e+09
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.1629904
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.1726395
+## $origin
+## [1] 18.4
+## 
+## $obs
+##            [,1]
+## [1,] 9.4360e+09
+## [2,] 8.2220e+09
+## [3,] 9.5100e+09
+## [4,] 1.2149e+10
+## 
+## $error
+##            [,1]
+## [1,]  1.431e+09
+## [2,] -1.214e+09
+## [3,]  1.288e+09
+## [4,]  2.639e+09
+## 
+## $forecast
+##           [,1]
+## [1,] 8.005e+09
+## [2,] 9.436e+09
+## [3,] 8.222e+09
+## [4,] 9.510e+09
+## 
+## $rmse
+## [1] 1742471090
+## 
+## $mabso
+## [1] 1.643e+09
+## 
+## $mape
+## [1] 0.1629904
+## 
+## [1] &quot;Applied Materials: - Manual Model Performance (GrossProfit($)&quot;
+## [1] &quot;RMSE of out-of-sample forecasts&quot;
+## [1] 1986574061
+## [1] &quot;Mean absolute error of out-of-sample forecasts&quot;
+## [1] 1.811e+09
+## [1] &quot;Mean Absolute Percentage error&quot;
+## [1] 0.2133683
+## [1] &quot;Symmetric Mean Absolute Percentage error&quot;
+## [1] 0.2281227
+## $origin
+## [1] 18.4
+## 
+## $obs
+##            [,1]
+## [1,] 7.8170e+09
+## [2,] 6.3860e+09
+## [3,] 7.6920e+09
+## [4,] 1.0914e+10
+## 
+## $error
+##            [,1]
+## [1,]  1.285e+09
+## [2,] -1.431e+09
+## [3,]  1.306e+09
+## [4,]  3.222e+09
+## 
+## $forecast
+##           [,1]
+## [1,] 6.532e+09
+## [2,] 7.817e+09
+## [3,] 6.386e+09
+## [4,] 7.692e+09
+## 
+## $rmse
+## [1] 1986574061
+## 
+## $mabso
+## [1] 1.811e+09
+## 
+## $mape
+## [1] 0.2133683</code></pre>
+<pre><code>## Warning in forecast.Arima(modelfit_TotalRevenue, h = 10, include = data_TotalRev): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## Warning in forecast.Arima(modelfit_CostOfRevenue, h = 10, include = data_CostOfRev): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## Warning in forecast.Arima(modelfit_GrossProfit, h = 10, include = data_GrossProf): The non-existent include arguments will be ignored.</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre><code>## 
+## Call:
+## arima(x = TotalRevenue_, order = c(vec_order), xreg = CostOfRev_)
+## 
+## Coefficients:
+##       CostOfRev_
+##           2.1351
+## s.e.      0.0722
+## 
+## sigma^2 estimated as 1.656e+17:  log likelihood = -467.35,  aic = 938.7
+## 
+## z test of coefficients:
+## 
+##            Estimate Std. Error z value  Pr(&gt;|z|)    
+## CostOfRev_ 2.135097   0.072227  29.561 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre><code>## 
+## Call:
+## arima(x = TotalRevenue_, order = c(vec_order), xreg = GrossProf_)
+## 
+## Coefficients:
+##       GrossProf_
+##           1.8089
+## s.e.      0.0515
+## 
+## sigma^2 estimated as 1.18e+17:  log likelihood = -463.62,  aic = 931.24
+## 
+## z test of coefficients:
+## 
+##            Estimate Std. Error z value  Pr(&gt;|z|)    
+## GrossProf_ 1.808928   0.051473  35.143 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code># Alphabet
+Alphabet_Records = company_records(&quot;Alphabet&quot;,Alphabet_Financial_Record_Years, Alphabet_TotalRevenue,
+                                   Alphabet_CostOfRevenue, Alphabet_GrossProfit)</code></pre>
+<pre><code>## [1] &quot;Years of Revenue =  23&quot;
+## [1] &quot;Revenue Records =  23&quot;
+## [1] &quot;Our corresponding records match in length&quot;
+## [1] &quot;Company Performance:  Alphabet&quot;
+##         Date TotalRevenue CostOfRevenue GrossProfit
+## 1 2000-12-31     19108000       6081000    13027000
+## 2 2001-12-31     86426000      14228000    72198000
+## 3 2002-12-31    439508000     131510000   307998000
+## 4 2003-12-31   1465934000     625854000   840080000
+## 5 2004-12-31   3189223000    1457653000  1731570000
+## 6 2005-12-31   6138560000    2571509000  3567051000</code></pre>
+<pre class="r"><code># Applied Materials
+AppliedMaterials_Records = company_records(&quot;Applied Materials&quot;,AppliedMaterials_Financial_Record_Years, AppliedMaterials_TotalRevenue,
+                                 AppliedMaterials_CostOfRevenue, AppliedMaterials_GrossProfit)</code></pre>
+<pre><code>## [1] &quot;Years of Revenue =  23&quot;
+## [1] &quot;Revenue Records =  23&quot;
+## [1] &quot;Our corresponding records match in length&quot;
+## [1] &quot;Company Performance:  Applied Materials&quot;
+##         Date TotalRevenue CostOfRevenue GrossProfit
+## 1 2000-10-31   9564412000    4708684000  4855728000
+## 2 2001-10-31   7343248000    4091215000  3252033000
+## 3 2002-10-31   5062312000    3005651000  2056661000
+## 4 2003-10-31   4477291000    2872836000  1604455000
+## 5 2004-10-31   8013063000    4311808000  3701255000
+## 6 2005-10-31   6991823000    3905949000  3085874000</code></pre>
+<pre class="r"><code># let&#39;s view Alphabet Sunda Pichai career trace to CEO
+CEO_Performance_Metric_currentRole_vs_priorRole = function(Alphabet_Records, AppliedMaterials_Records){
+  
+  # compare the TotalRevenue($)&#39;s
+  Alphabet_TotalRev = as.numeric(Alphabet_Records$TotalRevenue)  # TotalRevenues($)
+  Shared_dataRecord = as.Date(Alphabet_Records$Date)
+  AppliedMaterials_TotalRev = as.numeric(AppliedMaterials_Records$TotalRevenue)
+  Alphabet_AppliedMaterials_TotalRev_Corr = cor(Alphabet_TotalRev, AppliedMaterials_TotalRev)
+  
+  plot(Shared_dataRecord, Alphabet_TotalRev, col = &quot;red&quot;, pch = 19, bty = &quot;n&quot;, lwd = 2.0, type = &quot;l&quot;, xlab  = &quot;Years&quot;, ylab = &quot;TotalRevenue($)&quot;, 
+       main = str_c(&quot;Alphabet TotalRevenu($) vs. Applied Materials TotalRevenue($)&quot;))
+  lines(Shared_dataRecord, AppliedMaterials_TotalRev, col = &quot;green&quot;, pch = 19, bty = &quot;n&quot;,  lwd = 2.0, type = &quot;l&quot;)
+  mtext(str_c(&quot;correlation = &quot;, Alphabet_AppliedMaterials_TotalRev_Corr), side=3)
+  legend(&quot;topright&quot;, c(&quot;TotalRevnue($)&quot;, &quot;@Applied Materials: 2002-2004(Green)&quot;, &quot;@Alphabet: Start 2004, CEO 2015(Red), just after 11years@Google.&quot;), lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+
+  # compare the CostOfRevenue($)&#39;s
+  Alphabet_CostOfRev = as.numeric(Alphabet_Records$CostOfRevenue)  # TotalRevenues($)
+  Shared_dataRecord = as.Date(Alphabet_Records$Date)
+  AppliedMaterials_CostOfRev = as.numeric(AppliedMaterials_Records$CostOfRevenue)
+  Alphabet_AppliedMaterials_CostOfRev_Corr = cor(Alphabet_CostOfRev, AppliedMaterials_CostOfRev)
+  
+  plot(Shared_dataRecord, Alphabet_CostOfRev, col = &quot;blue&quot;, pch = 19, bty = &quot;n&quot;, lwd = 2.0, type = &quot;l&quot;, xlab  = &quot;Years&quot;, ylab = &quot;CostOfRevenue($)&quot;, 
+       main = str_c(&quot;Alphabet CostOfRev($) vs. Applied Materials CostOfRev($)&quot;))
+  lines(Shared_dataRecord, AppliedMaterials_CostOfRev, col = &quot;violet&quot;, pch = 19, bty = &quot;n&quot;,  lwd = 2.0, type = &quot;l&quot;)
+  mtext(str_c(&quot;correlation = &quot;, Alphabet_AppliedMaterials_CostOfRev_Corr), side=3)
+  legend(&quot;topright&quot;, c(&quot;CostOfRevenue($)&quot;, &quot;@Applied Materials: 2002-2004(Violet)&quot;, &quot;@Alphabet: Start 2004, CEO 2015(Blue), just after 11years@Google.&quot;), lty = 1, col = 13, pch = 19, lwd=2.0)
+  grid()
+  
+  # compare the GrossProfit($)&#39;s
+  Alphabet_GrossProfRev = as.numeric(Alphabet_Records$GrossProfit)  # TotalRevenues($)
+  Shared_dataRecord = as.Date(Alphabet_Records$Date)
+  AppliedMaterials_GrossProfRev = as.numeric(AppliedMaterials_Records$GrossProfit)
+  Alphabet_AppliedMaterials_GrossProf_Corr = cor(Alphabet_GrossProfRev, AppliedMaterials_GrossProfRev)
+  
+  plot(Shared_dataRecord, Alphabet_GrossProfRev, col = &quot;grey&quot;, pch = 19, bty = &quot;n&quot;, lwd = 2.0, type = &quot;l&quot;, xlab  = &quot;Years&quot;, ylab = &quot;GrossProfit($)&quot;, 
+       main = str_c(&quot;Alphabet GrossProfit($) vs. Applied Materials GrossProfit($)&quot;))
+  lines(Shared_dataRecord, AppliedMaterials_GrossProfRev, col = &quot;orange&quot;, pch = 19, bty = &quot;n&quot;, lwd = 2.0, type = &quot;l&quot;)
+  mtext(str_c(&quot;correlation = &quot;, Alphabet_AppliedMaterials_GrossProf_Corr), side=3)
+  legend(&quot;topright&quot;, c(&quot;GrossProfit($)&quot;,&quot;@Applied Materials: 2002-2004(Orange)&quot;, &quot;@Alphabet: Start 2004; CEO: 2015(Grey), just after 11years@Google.&quot;), lty = 1, col = 14, pch = 19, lwd=2.0)
+  grid()
+  }
+ 
+# let&#39;s invoke Alphabet Sunda Pichai career trace to CEO
+CEO_Performance_Metric_currentRole_vs_priorRole(Alphabet_Records, AppliedMaterials_Records)</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+<pre class="r"><code># here, we window scope Alphabet CEO&#39;s tenure at Alphabet, for performance metrics
+# Started his career at Google in 2004, and became its CEO in 2015, so in 11years
+# But, we are also looking at Google&#39;s performance, from his initial employment to
+# when he became its CEO in 2015. And so, we have two windows, of equal tenures
+# we are comparing: 2007-2014 (7year periond) to 2015-2022(7year period)
+CEO_Sundar_Pichai_Alphabet_Ladder_Performances = function(Alphabet_Records){
+  
+  Alphabet_Sundar_Pichai_Years = Alphabet_Records$Date
+  class(Alphabet_Sundar_Pichai_Years)
+  
+  Alphabet_Sundar_Pichai_Years = Alphabet_Records[8:15,1] # get the Engineer role tenure years
+  Alphabet_Sundar_Pichai_Years
+  Alphabet_Years_2007_2014 = 
+  Alphabet_2007_2014 = Alphabet_Records[8:15,]
+  Alphabet_Years_2007_2014 = Alphabet_2007_2014[,1]
+  
+  Alphabet_2015_2022 =  Alphabet_Records[16:23,] # get the CEO role tenure years
+  Alphabet_Years_2015_2022 = Alphabet_2015_2022[,1]
+  
+  # now, we compute our numbers
+  Pichai_TotalRevenue_2007 =  as.numeric(Alphabet_2007_2014[,2]) # Engineer Years
+  Pichai_CostOfRevenue_2007 = as.numeric(Alphabet_2007_2014[,3])
+  Pichai_GrossProfit_2007 = as.numeric(Alphabet_2007_2014[,4])
+  
+  # now, we compute our numbers
+  Pichai_TotalRevenue_2015 =  as.numeric(Alphabet_2015_2022[,2]) # Engineer Years
+  Pichai_CostOfRevenue_2015 = as.numeric(Alphabet_2015_2022[,3])
+  Pichai_GrossProfit_2015 = as.numeric(Alphabet_2015_2022[,4])
+  
+  # Correlatins: 20007-20014
+  Corr_TotalRevenue_Pichai = cor(Pichai_CostOfRevenue_2007, Pichai_TotalRevenue_2015)
+  Corr_CostOfREvenue_Pichai = cor(Pichai_CostOfRevenue_2007, Pichai_CostOfRevenue_2015)
+  Corr_GrossProfit_Pichai = cor(Pichai_GrossProfit_2007, Pichai_GrossProfit_2015)
+  
+  # let&#39;s build a new Date Record, a merger of Pichai&#39;s tenure at Alphabet
+  Pichai_Alphabet_Years = seq(as.Date(&quot;2007/12/31&quot;), as.Date(&quot;2022/12/31&quot;), by = 730) # start from 2007, to 2019, by every two years
+  
+
+  # Tenure: 2007-2014 TotalRevenue($), CostofRevenue($), GrossProfit($)
+  plot(Alphabet_Years_2007_2014 , Pichai_TotalRevenue_2007, col = &quot;red&quot;, pch = 19, bty = &quot;n&quot;, lwd = 2.0, type = &quot;l&quot;, xlab  = &quot;Years&quot;, ylab = &quot;TotalRevenue($)&quot;, 
+       main = str_c(&quot;Alphabet: Engineer Sundar Pichai(2007:2014) )&quot;))
+  lines(Alphabet_Years_2007_2014, Pichai_CostOfRevenue_2007, col = &quot;green&quot;, pch = 19, bty = &quot;n&quot;,  lwd = 2.0, type = &quot;l&quot;)
+  lines(Alphabet_Years_2007_2014, Pichai_GrossProfit_2007, col = &quot;blue&quot;, pch = 19, bty = &quot;n&quot;,  lwd = 2.0, type = &quot;l&quot;)
+  mtext(str_c(&quot;TotalRev,2007:2022, COstOfRev,2007:2022, GrossProfit,2007:2022, respectively: &quot;, round(Corr_TotalRevenue_Pichai,4),round(Corr_CostOfREvenue_Pichai,4),round(Corr_GrossProfit_Pichai,4)),
+        side=3)
+  legend(&quot;topright&quot;, c(&quot;Pichai_TotalRevenue_2007 - (Red)&quot;, &quot;Pichai_CostOfRevenue_2007 - (Green)&quot;, &quot;Pichai_GrossProfit_2007 - (Blue)&quot;), lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+  
+  # Tenure: 2015-2022 TotalRevenue($), CostofRevenue($), GrossProfit($)
+  plot(Alphabet_Years_2015_2022 , Pichai_TotalRevenue_2015, col = &quot;red&quot;, pch = 19, bty = &quot;n&quot;, lwd = 2.0, type = &quot;l&quot;, xlab  = &quot;Years&quot;, ylab = &quot;TotalRevenue($)&quot;, 
+       main = str_c(&quot;Alphabet: CEO Sundar Pichai(2015:2022)&quot;))
+  lines(Alphabet_Years_2015_2022, Pichai_CostOfRevenue_2015, col = &quot;green&quot;, pch = 19, bty = &quot;n&quot;,  lwd = 2.0, type = &quot;l&quot;)
+  lines(Alphabet_Years_2015_2022, Pichai_GrossProfit_2015, col = &quot;blue&quot;, pch = 19, bty = &quot;n&quot;,  lwd = 2.0, type = &quot;l&quot;)
+  mtext(str_c(&quot;TotalRev,2007:2022, COstOfRev,2007:2022, GrossProfit,2007:2022, respectively: &quot;, round(Corr_TotalRevenue_Pichai,4),round(Corr_CostOfREvenue_Pichai,4),round(Corr_GrossProfit_Pichai,4)),
+        side=3)
+  legend(&quot;topright&quot;, c(&quot;TotalRevenue($) - (Red)&quot;, &quot;CostOfRevenue($) - (Green)&quot;, &quot;GrossProfit($) - (Blue)&quot;), lty = 1, col = 12, pch = 19, lwd=2.0)
+  grid()
+ 
+}
+
+# let&#39;s check CEO Sunda Pichai&#39;s two tenure performance
+CEO_Sundar_Pichai_Alphabet_Ladder_Performances(Alphabet_Records)</code></pre>
+<p><img src="javascript://" width="672"/><img src="javascript://" width="672"/></p>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="module" src="https://s.brightspace.com/lib/bsi/2024.6.211/unbundled/mathjax.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
+					if (document.querySelector('math') || /\$\$|\\\(|\\\[|\\begin{|\\ref{|\\eqref{/.test(document.body.innerHTML)) {
+						document.querySelectorAll('mspace[linebreak="newline"]').forEach(elm => {
+							elm.setAttribute('style', 'display: block; height: 0.5rem;');
+						});
+
+						window.D2L.MathJax.loadMathJax({
+							outputScale: 1.5,
+							renderLatex: false,
+							enableMML3Support: false
+						});
+					}
+				});</script><script type="module" src="https://s.brightspace.com/lib/bsi/2024.6.211/unbundled/prism.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
+					document.querySelectorAll('.d2l-code').forEach(code => {
+						window.D2L.Prism.formatCodeElement(code);
+					});
+				});</script><script type="module" src="https://s.brightspace.com/lib/bsi/2024.6.211/unbundled/embeds.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
+					window.D2L.EmbedRenderer.renderEmbeds(document.body);
+				});</script></body></html>
